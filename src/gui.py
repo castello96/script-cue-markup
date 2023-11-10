@@ -1,12 +1,13 @@
-from cue_manager import CueManager
+from markup_manager import MarkupManager
 
-cue_manager = None
+markup_manager = None
 
 
 def launch_gui():
-    global cue_manager
+    global markup_manager
 
-    cue_manager = CueManager()
+    markup_manager = MarkupManager()
+    markup_manager.load_data("test/session_data.json")
     while True:
         print("\nMenu:")
         print("c) Click")
@@ -16,12 +17,11 @@ def launch_gui():
         choice = input("Enter your choice: ").lower()
 
         if choice == "c":
-            page_number = input("Enter a page number")
-            y_click = input('Enter a y_coordinate to simulate a "click"')
-            handle_click(page_number, y_click)
+            page_number = int(input("Enter a page number: "))
+            y_click = int(input('Enter a y_coordinate to simulate a "click": '))
+            handle_page_click(page_number, y_click)
         elif choice == "l":
-            file_path = input("Enter a file path to load")
-            handle_load_file(file_path)
+            handle_load_file()
         elif choice == "s":
             handle_save_file()
         elif choice == "q":
@@ -32,12 +32,12 @@ def launch_gui():
 
 
 # Example of handling a click event
-def handle_click(page_number, y_click):
-    if cue_manager is None:
+def handle_page_click(page_number, y_click):
+    if markup_manager is None:
         print("CueManager is not initialized.")
         return
 
-    intent = cue_manager.infer_click_intent(page_number, y_click)
+    intent = markup_manager.infer_click_intent(page_number, y_click)
 
     print("intent", intent)
 
@@ -46,17 +46,22 @@ def handle_click(page_number, y_click):
         select_cue(intent["cue"])
     elif intent["action"] == "add":
         # Add a new cue at the y-coordinate
-        cue_manager.add_cue(page_number, intent["y-coordinate"])
+        markup_manager.add_cue(page_number, intent["y-coordinate"])
         # After adding a cue, you may want to re-render the PDF page
         render_pdf_page(page_number)
 
 
-def handle_load_file(file_path):
+def handle_load_file():
+    # Will need a file load dialogue here
+    file_path = input("Enter a file path to load: ")
     print("loading file ", file_path)
+    markup_manager.load_data(file_path)
 
 
-def handle_save_file(file_path):
+def handle_save_file():
     # Will need a file save dialogue here
+    file_path = input("Enter a file path to save: ")
+    markup_manager.save_data(file_path)
     print("file saved! ")
 
 
