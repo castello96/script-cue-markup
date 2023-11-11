@@ -51,7 +51,7 @@ class MarkupManager:
 
         for cue in page.cues:
             if abs(cue.y_coordinate - y_click) <= threshold:
-                return {"action": "select", "cue": cue.to_dict()}
+                return {"action": "select", "cue": cue}
 
         return {"action": "add", "y-coordinate": y_click}
 
@@ -65,6 +65,6 @@ class MarkupManager:
         )  # Number to be set inside add_cue
         page.add_cue(new_cue)
 
-    def delete_cue(self, page_number, cue_number):
+    def delete_cue(self, page_number, cue):
         page = self.markup.get_page(page_number)
-        page.remove_cue(cue_number)
+        page.remove_cue(cue)

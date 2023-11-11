@@ -1,6 +1,7 @@
 from markup_manager import MarkupManager
 
 markup_manager = None
+selected_cue = None
 
 
 def launch_gui():
@@ -11,6 +12,7 @@ def launch_gui():
     while True:
         print("\nMenu:")
         print("c) Click")
+        print("d) Delete")
         print("l) Load file")
         print("s) Save file")
         print("q) Quit")
@@ -20,6 +22,8 @@ def launch_gui():
             page_number = int(input("Enter a page number: "))
             y_click = int(input('Enter a y_coordinate to simulate a "click": '))
             handle_page_click(page_number, y_click)
+        elif choice == "d":
+            handle_delete_key_press()
         elif choice == "l":
             handle_load_file()
         elif choice == "s":
@@ -43,7 +47,7 @@ def handle_page_click(page_number, y_click):
 
     if intent["action"] == "select":
         # Select the cue for potential deletion or other actions
-        select_cue(intent["cue"])
+        select_cue(page_number, intent["cue"])
     elif intent["action"] == "add":
         # Add a new cue at the y-coordinate
         markup_manager.add_cue(page_number, intent["y-coordinate"])
@@ -65,8 +69,19 @@ def handle_save_file():
     print("file saved! ")
 
 
-def select_cue():
-    pass
+def handle_delete_key_press():
+    # Check if there is a selected cue and if so, delete it
+    if selected_cue:
+        markup_manager.delete_cue(selected_cue["page_number"], selected_cue["cue"])
+        return
+    print("Cannot delete! No cue selected")
+
+
+def select_cue(page_number, cue):
+    global selected_cue
+
+    selected_cue = {"page_number": page_number, "cue": cue}
+    print(f"Cue selected: {selected_cue}")
 
 
 def render_pdf_page(page_number):

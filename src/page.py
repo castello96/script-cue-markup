@@ -7,8 +7,6 @@ class Page:
         self.cues = []
 
     def add_cue(self, cue_to_add):
-        print("[page.add_cue] self.cues before: ", self.cues)
-
         # Find the index where the new cue should be inserted
         insert_index = None
         for index, current_cue in enumerate(self.cues):
@@ -28,11 +26,15 @@ class Page:
             new_cue_number = len(self.cues) + 1
             self.cues.append(Cue(cue_to_add.y_coordinate, new_cue_number))
 
-        print("[page.add_cue] self.cues after: ", self.cues)
-
-    def remove_cue(self, cue_number):
-        # Logic to remove a cue
-        pass
+    def remove_cue(self, cue_to_remove):
+        # TODO: Could start the index at self.cues[cue_to_remove.number - 1] instead of the beginning
+        removed = False
+        for index, current_cue in enumerate(self.cues):
+            if current_cue == cue_to_remove and not removed:
+                self.cues.remove(current_cue)
+                removed = True
+            if removed:
+                self.cues[index].number -= 1
 
     def __repr__(self) -> str:
         return f"Page {self.number}\nCues: {self.cues}"
