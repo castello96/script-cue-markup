@@ -35,7 +35,6 @@ def launch_gui():
             print("Invalid choice, please try again.")
 
 
-# Example of handling a click event
 def handle_page_click(page_number, y_click):
     if markup_manager is None:
         print("CueManager is not initialized.")

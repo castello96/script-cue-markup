@@ -21,7 +21,7 @@ class MarkupManager:
                     page = Page(page_number)
                     for cue_dict in cues:
                         cue = Cue.from_dict(cue_dict)
-                        page.add_cue(cue)
+                        page.add_cue(cue.y_coordinate)
                     self.markup.add_page(page)
                 print("data successfully loaded: ", self.markup)
         except FileNotFoundError:
@@ -57,13 +57,8 @@ class MarkupManager:
 
     def add_cue(self, page_number, y_click):
         page = self.markup.get_page(page_number)
-
         print("[markup_manager.add_cue] page", page)
-
-        new_cue = Cue(
-            y_coordinate=y_click, number=None
-        )  # Number to be set inside add_cue
-        page.add_cue(new_cue)
+        page.add_cue(y_click)
 
     def delete_cue(self, page_number, cue):
         page = self.markup.get_page(page_number)
