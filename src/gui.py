@@ -1,47 +1,57 @@
 from markup_manager import MarkupManager
 from cursor_mode import CursorMode
+import PySimpleGUI as sg
 
 
 class Gui:
-    def __init__(self):
-        self.markup_manager = MarkupManager()
+    def __init__(self, markup_manager):
+        self.markup_manager = markup_manager
         self.selected_cue = None
         self.cursor_mode = CursorMode.SELECT
 
-    def launch_gui(self):
-        self.markup_manager.load_data("test/session_data.json")
-        while True:
-            print("\nMenu:")
-            print("s) Select")
-            print("a) Add Cue")
-            print("c) Click")
-            print("d) Delete")
-            print("l) Load file")
-            print("sa) Save file")
-            print("q) Quit")
-            choice = input("Enter your choice: ").lower()
+        self.layout = [
+            [
+                sg.Button("Select", key="-SELECT-"),
+                sg.Button("Add Cue", key="-ADD-"),
+                sg.Button("Delete", key="-DELETE-"),
+                sg.Button("Prev Page", key="-PREV_PAGE-"),
+                sg.Button("Next Page", key="-NEXT_PAGE-"),
+            ],
+            [
+                sg.Button("Load", key="-LOAD-"),
+                sg.Button("Save As", key="-SAVE_AS-"),
+                sg.Button("Save", key="-SAVE-"),
+            ],
+            [sg.Text("Cursor Mode:"), sg.Text("SELECT", key="-CURSOR-MODE-")],
+            [sg.Image(key="-IMAGE-")],  # Placeholder for PDF page image
+        ]
+        self.window = sg.Window("PDF Markup Tool", self.layout)
 
-            if choice == "s":
-                self.cursor_mode = CursorMode.SELECT
-                print("Cursor mode set to ", self.cursor_mode)
-            elif choice == "a":
-                self.cursor_mode = CursorMode.CUE
-                print("Cursor mode set to ", self.cursor_mode)
-            elif choice == "c":
-                page_number = int(input("Enter a page number: "))
-                y_click = int(input('Enter a y_coordinate to simulate a "click": '))
-                self.handle_page_click(page_number, y_click)
-            elif choice == "d":
-                self.handle_delete_key_press()
-            elif choice == "l":
-                self.handle_load_file()
-            elif choice == "sa":
-                self.handle_save_file()
-            elif choice == "q":
-                print("Exiting program.")
+    def launch_gui(self):
+        while True:
+            event, values = self.window.read()
+            if event == sg.WIN_CLOSED:
                 break
-            else:
-                print("Invalid choice, please try again.")
+            elif event == "-SELECT-":
+                self.cursor_mode = CursorMode.SELECT
+            elif event == "-ADD-":
+                self.cursor_mode = CursorMode.CUE
+            elif event == "-DELETE-":
+                self.handle_delete_key_press()
+            elif event == "-PREV_PAGE-":
+                self.handle_previous_page_click
+            elif event == "-NEXT_PAGE-":
+                self.handle_next_page_click()
+            elif event == "-LOAD-":
+                self.handle_load_file()
+            elif event == "-SAVE_AS-":
+                self.handle_save_file_as()
+            elif event == "-SAVE-":
+                self.handle_save_file()
+
+            self.window["-CURSOR-MODE-"].update(self.cursor_mode.name)
+
+        self.window.close()
 
     def handle_page_click(self, page_number, y_click):
         print("Page before: ", self.markup_manager.get_page(page_number))
@@ -58,14 +68,32 @@ class Gui:
         self.render_pdf_page(page_number)
 
     def handle_load_file(self):
-        # Will need a file load dialogue here
-        file_path = input("Enter a file path to load: ")
-        print("loading file ", file_path)
-        self.markup_manager.load_data(file_path)
+        # TODO: file_types is not filtering to JSON
+        file_path = sg.popup_get_file(
+            "Select a file to open",
+            title="Load file",
+            file_types=(("JSON Files", "*.json"),),
+            no_window=True,
+        )
+
+        if file_path:  # Check if a file was selected
+            print("loading file ", file_path)
+            self.markup_manager.load_data(file_path)
+        else:
+            print("File loading cancelled.")
 
     def handle_save_file(self):
+        # TODO: Use this if file has already been saved with a name
+        pass
+
+    def handle_save_file_as(self):
         # Will need a file save dialogue here
-        file_path = input("Enter a file path to save: ")
+        file_path = sg.popup_get_file(
+            "Select a destination to save your markup to",
+            "Save file",
+            save_as=True,
+            default_extension=".json",
+        )
         self.markup_manager.save_data(file_path)
         print("file saved! ")
 
