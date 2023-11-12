@@ -1,16 +1,15 @@
 from markup_manager import MarkupManager
+from cursor_mode import CursorMode
 
 
 class Gui:
     def __init__(self):
         self.markup_manager = MarkupManager()
         self.selected_cue = None
+        self.cursor_mode = CursorMode.SELECT
 
     def launch_gui(self):
-        global markup_manager
-
-        markup_manager = MarkupManager()
-        markup_manager.load_data("test/session_data.json")
+        self.markup_manager.load_data("test/session_data.json")
         while True:
             print("\nMenu:")
             print("c) Click")
@@ -37,47 +36,45 @@ class Gui:
                 print("Invalid choice, please try again.")
 
     def handle_page_click(self, page_number, y_click):
-        if markup_manager is None:
-            print("CueManager is not initialized.")
-            return
+        print("Page before: ", self.markup_manager.get_page(page_number))
+        if self.cursor_mode == CursorMode.SELECT:
+            self.select_cue(page_number, y_click)
+        elif self.cursor_mode == CursorMode.CUE:
+            self.markup_manager.add_cue(page_number, y_click)
+        elif self.cursor_mode == CursorMode.ANNOTATE:
+            pass
 
-        intent = markup_manager.infer_click_intent(page_number, y_click)
+        print("Page after: ", self.markup_manager.get_page(page_number))
 
-        print("intent", intent)
-
-        if intent["action"] == "select":
-            # Select the cue for potential deletion or other actions
-            self.select_cue(page_number, intent["cue"])
-        elif intent["action"] == "add":
-            # Add a new cue at the y-coordinate
-            markup_manager.add_cue(page_number, intent["y-coordinate"])
-            # After adding a cue, you may want to re-render the PDF page
-            self.render_pdf_page(page_number)
+        # Rerender the page
+        self.render_pdf_page(page_number)
 
     def handle_load_file(self):
         # Will need a file load dialogue here
         file_path = input("Enter a file path to load: ")
         print("loading file ", file_path)
-        markup_manager.load_data(file_path)
+        self.markup_manager.load_data(file_path)
 
     def handle_save_file(self):
         # Will need a file save dialogue here
         file_path = input("Enter a file path to save: ")
-        markup_manager.save_data(file_path)
+        self.markup_manager.save_data(file_path)
         print("file saved! ")
 
     def handle_delete_key_press(self):
         # Check if there is a selected cue and if so, delete it
-        if selected_cue:
-            markup_manager.delete_cue(selected_cue["page_number"], selected_cue["cue"])
+        if self.selected_cue:
+            self.markup_manager.delete_cue(
+                self.selected_cue["page_number"], self.selected_cue["cue"]
+            )
             return
         print("Cannot delete! No cue selected")
 
-    def select_cue(self, page_number, cue):
-        global selected_cue
-
-        selected_cue = {"page_number": page_number, "cue": cue}
-        print(f"Cue selected: {selected_cue}")
+    def select_cue(self, page_number, y_click):
+        cue = self.markup_manager.get_cue_at_y_coordinate(page_number, y_click)
+        if cue:
+            self.selected_cue = {"page_number": page_number, "cue": cue}
+            print(f"Cue selected: {self.selected_cue}")
 
     def handle_next_page_click(self):
         pass
