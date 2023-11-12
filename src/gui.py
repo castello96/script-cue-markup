@@ -9,30 +9,99 @@ class Gui:
         self.selected_cue = None
         self.cursor_mode = CursorMode.SELECT
 
-        self.layout = [
+        self.pdf_files = [
+            "Page -2 (0 cues) 1",
+            "Page -1 (0 cues) 2",
+            "Page 0 (2 cues) 3",
+            "Page 1 (2 cues) 4",
+            "Page 2 (1 cues) 5",
+            "Page 3 (1 cues) 6",
+            "Page 4 (3 cues) 7",
+        ]
+
+        self.file_io_buttons = [
             [
                 sg.Button("Load", key="-LOAD-"),
                 sg.Button("Save As", key="-SAVE_AS-"),
                 sg.Button("Save", key="-SAVE-"),
+            ]
+        ]
+
+        self.cursor_mode_buttons = [
+            [
                 sg.Button("Select", key="-SELECT-"),
                 sg.Button("Add Cue", key="-ADD_CUE-"),
                 sg.Button("Annotate", key="-ANNOTATE-"),
-                sg.Button("Calibrate", key="CALIBRATE"),
-                sg.Button("Delete", key="-DELETE-"),
+                sg.Button("Offset", key="-OFFSET-"),
             ],
-            [sg.Text("Cursor Mode:"), sg.Text("SELECT", key="-CURSOR-MODE-")],
-            [sg.Image(key="-IMAGE-")],  # Placeholder for PDF page image
+            [sg.Text("Cursor Mode", key="-CURSOR_MODE-")],
+        ]
+
+        self.action_buttons = [
             [
-                sg.Button("Prev Page", key="-PREV_PAGE-"),
-                sg.Button("Next Page", key="-NEXT_PAGE-"),
+                sg.Button("Delete", key="-DELETE-"),
+            ]
+        ]
+
+        self.menu = [
+            # TODO: Add tooltips for all buttons
+            [
+                sg.Col(self.file_io_buttons),
+                sg.Col(self.cursor_mode_buttons),
+                sg.Col(self.action_buttons),
+            ]
+        ]
+
+        self.col_pages_list = [
+            [sg.Text("Rock of Ages.pdf", size=(80, 3), key="-FILENAME-")],
+            [
+                sg.Listbox(
+                    values=self.pdf_files,
+                    size=(60, 30),
+                    key="-LISTBOX-",
+                    enable_events=True,
+                )
+            ],
+            [
+                sg.Text(
+                    "Select a page. Use scrollwheel or arrow keys on keyboard to scroll through files one by one."
+                )
             ],
         ]
-        self.window = sg.Window("PDF Markup Tool", self.layout)
+
+        self.col_page_view = [
+            [sg.Image(key="-IMAGE-", expand_x=True, expand_y=True)],
+            [
+                sg.Button("Next", size=(8, 2)),
+                sg.Button("Prev", size=(8, 2)),
+                sg.Text(
+                    f"Page 1 of {len(self.pdf_files)}",
+                    size=(15, 1),
+                    key="-FILE_NUM-",
+                ),
+            ],
+        ]
+
+        self.layout = [
+            [self.menu],
+            [sg.Col(self.col_pages_list), sg.Col(self.col_page_view)],
+        ]
+
+        self.window = sg.Window(
+            "PDF Markup Tool",
+            self.layout,
+            return_keyboard_events=True,
+            enable_close_attempted_event=True,
+        )
 
     def launch_gui(self):
         while True:
             event, values = self.window.read()
-            if event in (sg.WIN_CLOSED, "Exit"):
+            print(event)
+            if (
+                event in (sg.WIN_CLOSE_ATTEMPTED_EVENT, "Exit")
+                and sg.popup_yes_no("Do you really want to exit?") == "Yes"
+            ):
                 break
             elif event == "-LOAD-":
                 self.handle_load_file()
@@ -40,22 +109,21 @@ class Gui:
                 self.handle_save_file_as()
             elif event == "-SAVE-":
                 self.handle_save_file()
-            elif event == "-SELECT-":
-                self.cursor_mode = CursorMode.SELECT
-            elif event == "-ADD_CUE-":
-                self.cursor_mode = CursorMode.CUE
-            elif event == "-ANNOTATE-":
-                self.cursor_mode = CursorMode.ANNOTATE
-            elif event == "-CALIBRATE-":
-                self.cursor_mode = CursorMode.CALIBRATE
+            elif event in ("-SELECT-", "s"):
+                self.handle_update_cursor_mode(CursorMode.SELECT)
+            elif event in ("-ADD_CUE-", "c"):
+                self.handle_update_cursor_mode(CursorMode.CUE)
+            elif event in ("-ANNOTATE-", "a"):
+                self.handle_update_cursor_mode(CursorMode.ANNOTATE)
+            elif event in ("-OFFSET-", "o"):
+                self.handle_update_cursor_mode(CursorMode.OFFSET)
             elif event == "-DELETE-":
                 self.handle_delete_key_press()
             elif event == "-PREV_PAGE-":
                 self.handle_previous_page_click
             elif event == "-NEXT_PAGE-":
                 self.handle_next_page_click()
-
-            self.window["-CURSOR-MODE-"].update(self.cursor_mode.name)
+            # TODO: Handle -WINDOW_CLOSED- event
 
         self.window.close()
 
@@ -93,11 +161,11 @@ class Gui:
         pass
 
     def handle_save_file_as(self):
-        # Will need a file save dialogue here
         file_path = sg.popup_get_file(
             "Select a destination to save your markup to",
             "Save file",
             save_as=True,
+            no_window=True,
             default_extension=".json",
         )
         self.markup_manager.save_data(file_path)
@@ -117,6 +185,11 @@ class Gui:
         if cue:
             self.selected_cue = {"page_number": page_number, "cue": cue}
             print(f"Cue selected: {self.selected_cue}")
+
+    def handle_update_cursor_mode(self, cursor_mode):
+        # TODO: Update this to outline the currently selected button
+        self.cursor_mode = cursor_mode
+        self.window["-CURSOR_MODE-"].update(f"Cursor Mode: {self.cursor_mode.name}")
 
     def handle_next_page_click(self):
         pass
