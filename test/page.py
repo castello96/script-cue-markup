@@ -5,11 +5,11 @@ from src.page import Page
 
 class TestPage(unittest.TestCase):
     def setUp(self) -> None:
-        self.cue1 = Cue(10, 1)
-        self.cue2 = Cue(20, 2)
-        self.cue3 = Cue(30, 3)
-        self.cue4 = Cue(40, 4)
-        self.test_page = Page(1, [self.cue1, self.cue2, self.cue3, self.cue4])
+        self.test_cues = [Cue(10, 1), Cue(20, 2), Cue(30, 3), Cue(40, 4)]
+        self.test_page = Page(
+            1,
+            self.test_cues,
+        )
 
     def test_add_cue_to_beginning(self):
         self.test_page.add_cue(5)
@@ -36,7 +36,7 @@ class TestPage(unittest.TestCase):
         )
 
     def test_remove_cue_at_beginning(self):
-        self.test_page.remove_cue(self.cue1)
+        self.test_page.remove_cue(self.test_cues[0])
         self.assertEqual(len(self.test_page.cues), 3)
         self.assertEqual(
             self.test_page.cues,
@@ -44,7 +44,7 @@ class TestPage(unittest.TestCase):
         )
 
     def test_remove_cue_at_middle(self):
-        self.test_page.remove_cue(self.cue2)
+        self.test_page.remove_cue(self.test_cues[1])
         self.assertEqual(len(self.test_page.cues), 3)
         self.assertEqual(
             self.test_page.cues,
@@ -52,12 +52,24 @@ class TestPage(unittest.TestCase):
         )
 
     def test_remove_cue_at_end(self):
-        self.test_page.remove_cue(self.cue4)
+        self.test_page.remove_cue(self.test_cues[len(self.test_cues) - 1])
         self.assertEqual(len(self.test_page.cues), 3)
         self.assertEqual(
             self.test_page.cues,
             [Cue(10, 1), Cue(20, 2), Cue(30, 3)],
         )
+
+    def test_equality_comparison_different_types(self):
+        self.assertFalse(self.test_page == self.test_cues[0])
+
+    def test_equality_comparison_equal(self):
+        self.assertTrue(self.test_page == Page(1, self.test_cues))
+
+    def test_equality_comparison_non_equal_page_number(self):
+        self.assertFalse(self.test_page == Page(2, self.test_cues))
+
+    def test_equality_comparison_non_equal_cues(self):
+        self.assertFalse(self.test_page == Page(1, [Cue(10, 1)]))
 
 
 if __name__ == "__main__":

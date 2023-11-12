@@ -17,6 +17,18 @@ class TestCue(unittest.TestCase):
         self.test_cue.update(20, 2)
         self.assertEqual(self.test_cue, Cue(20, 2))
 
+    def test_equality_comparison_different_types(self):
+        self.assertFalse(self.test_cue == 10)
+
+    def test_equality_comparison_equal(self):
+        self.assertTrue(self.test_cue == Cue(10, 1))
+
+    def test_equality_comparison_non_equal_y_coordinate(self):
+        self.assertFalse(self.test_cue == Cue(11, 1))
+
+    def test_equality_comparison_non_equal_cue_number(self):
+        self.assertFalse(self.test_cue == Cue(10, 2))
+
 
 if __name__ == "__main__":
     unittest.main()

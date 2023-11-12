@@ -17,9 +17,9 @@ class Cue:
     def __eq__(self, other):
         if not isinstance(other, Cue):
             # don't attempt to compare against unrelated types
-            return NotImplemented
+            return False
 
         return self.y_coordinate == other.y_coordinate and self.number == other.number
 
     def __repr__(self) -> str:
-        return f"y_coordinate: {self.y_coordinate} number: {self.number}\t"
+        return f"y_coordinate: {self.y_coordinate} number: {self.number}"

@@ -6,7 +6,7 @@ except ImportError:
 
 
 class Page:
-    def __init__(self, number, cues=[]):
+    def __init__(self, number: int, cues=[]):
         self.number = number
         self.cues = cues
 
@@ -40,5 +40,12 @@ class Page:
             if removed and index != len(self.cues):
                 self.cues[index].number -= 1
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Page):
+            # don't attempt to compare against unrelated types
+            return False
+
+        return self.number == other.number and self.cues == other.cues
+
     def __repr__(self) -> str:
-        return f"Page {self.number}\nCues: {self.cues}"
+        return f"Page {self.number}, Cues: {self.cues}"
