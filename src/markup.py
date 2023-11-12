@@ -26,5 +26,8 @@ class Markup:
 
         return self.pages == other.pages
 
-    def __repr__(self) -> str:
-        return str(self.pages.items())
+    def __repr__(self):
+        pages_repr = ", ".join(
+            f"{number}: {repr(page)}" for number, page in self.pages.items()
+        )
+        return f"Markup(pages={{ {pages_repr} }})"

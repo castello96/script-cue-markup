@@ -6,9 +6,9 @@ except ImportError:
 
 
 class Page:
-    def __init__(self, number: int, cues=[]):
+    def __init__(self, number: int, cues=None):
         self.number = number
-        self.cues = cues
+        self.cues = cues if cues is not None else []
 
     def add_cue(self, cue_to_add_y_coordinate):
         # Find the index where the new cue should be inserted
@@ -47,5 +47,6 @@ class Page:
 
         return self.number == other.number and self.cues == other.cues
 
-    def __repr__(self) -> str:
-        return f"Page {self.number}, Cues: {self.cues}"
+    def __repr__(self):
+        cues_repr = ", ".join(repr(cue) for cue in self.cues)
+        return f"Page(number={self.number}, cues=[{cues_repr}])"

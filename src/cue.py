@@ -21,5 +21,5 @@ class Cue:
 
         return self.y_coordinate == other.y_coordinate and self.number == other.number
 
-    def __repr__(self) -> str:
-        return f"y_coordinate: {self.y_coordinate} number: {self.number}"
+    def __repr__(self):
+        return f"Cue(y_coordinate={self.y_coordinate}, number={self.number})"

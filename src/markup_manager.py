@@ -21,9 +21,9 @@ class MarkupManager:
                     page = Page(page_number)
                     print("Created new page", page)
                     for cue_dict in cues:
-                        print("cue_dict", cue_dict)
+                        print("cue_dict: ", cue_dict)
                         cue = Cue.from_dict(cue_dict)
-                        print("cue", cue)
+                        print("cue: ", cue)
                         page.add_cue(cue.y_coordinate)
                         print("Added cue to page: ", page)
                     self.markup.add_page(page)
