@@ -11,43 +11,49 @@ class Gui:
 
         self.layout = [
             [
-                sg.Button("Select", key="-SELECT-"),
-                sg.Button("Add Cue", key="-ADD-"),
-                sg.Button("Delete", key="-DELETE-"),
-                sg.Button("Prev Page", key="-PREV_PAGE-"),
-                sg.Button("Next Page", key="-NEXT_PAGE-"),
-            ],
-            [
                 sg.Button("Load", key="-LOAD-"),
                 sg.Button("Save As", key="-SAVE_AS-"),
                 sg.Button("Save", key="-SAVE-"),
+                sg.Button("Select", key="-SELECT-"),
+                sg.Button("Add Cue", key="-ADD_CUE-"),
+                sg.Button("Annotate", key="-ANNOTATE-"),
+                sg.Button("Calibrate", key="CALIBRATE"),
+                sg.Button("Delete", key="-DELETE-"),
             ],
             [sg.Text("Cursor Mode:"), sg.Text("SELECT", key="-CURSOR-MODE-")],
             [sg.Image(key="-IMAGE-")],  # Placeholder for PDF page image
+            [
+                sg.Button("Prev Page", key="-PREV_PAGE-"),
+                sg.Button("Next Page", key="-NEXT_PAGE-"),
+            ],
         ]
         self.window = sg.Window("PDF Markup Tool", self.layout)
 
     def launch_gui(self):
         while True:
             event, values = self.window.read()
-            if event == sg.WIN_CLOSED:
+            if event in (sg.WIN_CLOSED, "Exit"):
                 break
-            elif event == "-SELECT-":
-                self.cursor_mode = CursorMode.SELECT
-            elif event == "-ADD-":
-                self.cursor_mode = CursorMode.CUE
-            elif event == "-DELETE-":
-                self.handle_delete_key_press()
-            elif event == "-PREV_PAGE-":
-                self.handle_previous_page_click
-            elif event == "-NEXT_PAGE-":
-                self.handle_next_page_click()
             elif event == "-LOAD-":
                 self.handle_load_file()
             elif event == "-SAVE_AS-":
                 self.handle_save_file_as()
             elif event == "-SAVE-":
                 self.handle_save_file()
+            elif event == "-SELECT-":
+                self.cursor_mode = CursorMode.SELECT
+            elif event == "-ADD_CUE-":
+                self.cursor_mode = CursorMode.CUE
+            elif event == "-ANNOTATE-":
+                self.cursor_mode = CursorMode.ANNOTATE
+            elif event == "-CALIBRATE-":
+                self.cursor_mode = CursorMode.CALIBRATE
+            elif event == "-DELETE-":
+                self.handle_delete_key_press()
+            elif event == "-PREV_PAGE-":
+                self.handle_previous_page_click
+            elif event == "-NEXT_PAGE-":
+                self.handle_next_page_click()
 
             self.window["-CURSOR-MODE-"].update(self.cursor_mode.name)
 
