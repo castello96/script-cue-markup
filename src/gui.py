@@ -6,8 +6,9 @@ import PySimpleGUI as sg
 class Gui:
     def __init__(self, markup_manager):
         self.markup_manager = markup_manager
-        self.selected_cue = None
+        self.current_page = 1
         self.cursor_mode = CursorMode.SELECT
+        self.selected_cue = None
 
         self.pdf_files = [
             "Page -2 (0 cues) 1",
@@ -21,9 +22,11 @@ class Gui:
 
         self.file_io_buttons = [
             [
-                sg.Button("Load", key="-LOAD-"),
+                sg.Button("Load PDF", key="-LOAD_PDF-"),
+                sg.Button("Load Markup", key="-LOAD_MARKUP-"),
                 sg.Button("Save As", key="-SAVE_AS-"),
                 sg.Button("Save", key="-SAVE-"),
+                sg.Button("Export", key="-EXPORT-"),
             ]
         ]
 
@@ -75,7 +78,7 @@ class Gui:
                 sg.Button("Next", size=(8, 2)),
                 sg.Button("Prev", size=(8, 2)),
                 sg.Text(
-                    f"Page 1 of {len(self.pdf_files)}",
+                    f"Page {self.current_page} of {len(self.pdf_files)}",
                     size=(15, 1),
                     key="-FILE_NUM-",
                 ),
@@ -103,12 +106,16 @@ class Gui:
                 and sg.popup_yes_no("Do you really want to exit?") == "Yes"
             ):
                 break
-            elif event == "-LOAD-":
+            elif event == "-LOAD_PDF-":
+                self.handle_load_pdf_file()
+            elif event == "-LOAD_MARKUP-":
                 self.handle_load_file()
             elif event == "-SAVE_AS-":
                 self.handle_save_file_as()
             elif event == "-SAVE-":
                 self.handle_save_file()
+            elif event == "-EXPORT-":
+                self.handle_export_pdf_with_markup()
             elif event in ("-SELECT-", "s"):
                 self.handle_update_cursor_mode(CursorMode.SELECT)
             elif event in ("-ADD_CUE-", "c"):
@@ -123,7 +130,6 @@ class Gui:
                 self.handle_previous_page_click
             elif event == "-NEXT_PAGE-":
                 self.handle_next_page_click()
-            # TODO: Handle -WINDOW_CLOSED- event
 
         self.window.close()
 
@@ -141,18 +147,33 @@ class Gui:
         # Rerender the page
         self.render_pdf_page(page_number)
 
-    def handle_load_file(self):
+    def handle_load_markup_file(self):
         # TODO: file_types is not filtering to JSON
-        file_path = sg.popup_get_file(
+        markup_file_path = sg.popup_get_file(
             "Select a file to open",
-            title="Load file",
+            title="Load markup file",
             file_types=(("JSON Files", "*.json"),),
             no_window=True,
         )
 
-        if file_path:  # Check if a file was selected
-            print("loading file ", file_path)
-            self.markup_manager.load_data(file_path)
+        if markup_file_path:  # Check if a file was selected
+            print("loading file ", markup_file_path)
+            self.markup_manager.load_data(markup_file_path)
+        else:
+            print("File loading cancelled.")
+
+    def handle_load_pdf_file(self):
+        # TODO: file_types is not filtering to pdf
+        pdf_file_path = sg.popup_get_file(
+            "Select a file to open",
+            title="Load pdf file",
+            file_types=(("PDF Files", "*.pdf"),),
+            no_window=True,
+        )
+
+        if pdf_file_path:  # Check if a file was selected
+            print("loading file ", pdf_file_path)
+            # TODO: Use pdf manager here
         else:
             print("File loading cancelled.")
 
@@ -170,6 +191,10 @@ class Gui:
         )
         self.markup_manager.save_data(file_path)
         print("file saved! ")
+
+    def handle_export_pdf_with_markup(self):
+        # TODO: Export the pdf with markups
+        pass
 
     def handle_delete_key_press(self):
         # Check if there is a selected cue and if so, delete it
