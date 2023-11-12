@@ -12,14 +12,22 @@ class Gui:
         self.markup_manager.load_data("test/session_data.json")
         while True:
             print("\nMenu:")
+            print("s) Select")
+            print("a) Add Cue")
             print("c) Click")
             print("d) Delete")
             print("l) Load file")
-            print("s) Save file")
+            print("sa) Save file")
             print("q) Quit")
             choice = input("Enter your choice: ").lower()
 
-            if choice == "c":
+            if choice == "s":
+                self.cursor_mode = CursorMode.SELECT
+                print("Cursor mode set to ", self.cursor_mode)
+            elif choice == "a":
+                self.cursor_mode = CursorMode.CUE
+                print("Cursor mode set to ", self.cursor_mode)
+            elif choice == "c":
                 page_number = int(input("Enter a page number: "))
                 y_click = int(input('Enter a y_coordinate to simulate a "click": '))
                 self.handle_page_click(page_number, y_click)
@@ -27,7 +35,7 @@ class Gui:
                 self.handle_delete_key_press()
             elif choice == "l":
                 self.handle_load_file()
-            elif choice == "s":
+            elif choice == "sa":
                 self.handle_save_file()
             elif choice == "q":
                 print("Exiting program.")

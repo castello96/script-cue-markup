@@ -11,6 +11,7 @@ class Page:
         self.cues = cues if cues is not None else []
 
     def add_cue(self, cue_to_add_y_coordinate):
+        # TODO: Add logic to prevent adding a cue on top of a preexisting one
         # Find the index where the new cue should be inserted
         insert_index = None
         for index, current_cue in enumerate(self.cues):

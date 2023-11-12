@@ -40,7 +40,7 @@ class MarkupManager:
             }
             json.dump(json_data, file, indent=4)
 
-    def get_cue_at_y_coordinate(self, page_number, y_coordinate, threshold=5):
+    def get_cue_at_y_coordinate(self, page_number, y_coordinate, threshold=4):
         page = self.markup.get_page(page_number)
 
         for cue in page.cues:
