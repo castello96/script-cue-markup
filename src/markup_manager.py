@@ -57,7 +57,6 @@ class MarkupManager:
 
     def add_cue(self, page_number, y_click):
         page = self.markup.get_page(page_number)
-        print("[markup_manager.add_cue] page", page)
         page.add_cue(y_click)
 
     def delete_cue(self, page_number, cue):

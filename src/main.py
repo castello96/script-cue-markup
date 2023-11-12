@@ -1,9 +1,10 @@
-from gui import launch_gui
+from gui import Gui
 
 
 def main():
     print("PDF Annotation Application started.")
-    launch_gui()
+    gui = Gui()
+    gui.launch_gui()
 
 
 if __name__ == "__main__":
