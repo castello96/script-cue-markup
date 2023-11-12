@@ -4,30 +4,31 @@ PDF Interaction:
 Open and render PDF documents.
 Detect mouse click positions on a PDF page.
 Draw horizontal lines across the clicked position on the PDF page.
-Add incrementing cue numbers in the format of x.y next to each line.
+Add incrementing cue numbers in the format of page_number.cue_number next to each line.
+
 Cue Number Management:
 
 Store and manage cue numbers and positions in a JSON file.
 Insert lines between existing ones and update cue numbers accordingly.
 Maintain the cue number order after inserting a new line.
+Allow the user to switch between cursor modes: SELECT, CUE, and ANNOTATE (to be implemented in the future)
+Allow the user to select a preexisting cue by clicking close to its y-coordinate (within a certain threshold).
+The application should allow the user to delete the selected cue by pressing the delete key, which should update the in-memory data structure and subsequently the JSON file upon save.
+
 Session Management:
 
-Save a session's progress to resume later.
+Save a sessions progress to resume later.
 Load a session from the saved JSON file and restore overlays.
-Export Functionality:
 
-The application should allow the user to select a preexisting cue by clicking close to its y-coordinate (within a certain threshold).
-The application should allow the user to delete the selected cue by pressing the delete key, which should update the in-memory data structure and subsequently the JSON file upon save.
+Export Functionality:
 
 Export the annotated PDF with all the lines and cue numbers added.
 
 Non-Functional Requirements:
+
 Performance: The application should handle large PDF files and numerous cues without significant lag.
-
 Usability: The interface should be intuitive and easy to use, with minimal learning curve.
-
 Reliability: The application should handle errors gracefully, such as reading/writing files, and provide clear user feedback.
-
 Portability: The application should work across different operating systems where Python and its dependencies can be installed.
 
 Development Requirements:
@@ -38,17 +39,21 @@ Libraries and Frameworks:
 A PDF library (like PyPDF2, PDFMiner, or ReportLab) to handle PDF operations.
 A graphics library (like PyQt or Tkinter) for the GUI component.
 Additional libraries for handling JSON and possibly threading if asynchronous operations are required.
+
 Development Environment:
 
 A code editor or an Integrated Development Environment (IDE) like PyCharm or Visual Studio Code.
 Version control system, preferably Git, for managing the codebase.
+
 Testing:
 
 Unit testing for core functionality.
 Integration testing for ensuring all parts work together as expected.
+
 Documentation:
 
 Code comments and documentation for maintenance and future development.
+
 Distribution:
 
 Packaging the application for distribution, possibly using tools like PyInstaller or Docker.
