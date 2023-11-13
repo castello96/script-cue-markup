@@ -28,7 +28,7 @@ class Gui:
                 sg.Button("Save As", key="-SAVE_AS-"),
                 sg.Button("Save", key="-SAVE-"),
                 sg.Button("Export", key="-EXPORT-"),
-            ]
+            ],
         ]
 
         self.cursor_mode_buttons = [
@@ -42,18 +42,16 @@ class Gui:
         ]
 
         self.action_buttons = [
-            [
-                sg.Button("Delete", key="-DELETE-"),
-            ]
+            [sg.Button("Delete", key="-DELETE-")],
         ]
 
         self.menu = [
             # TODO: Add tooltips for all buttons
             [
-                sg.Col(self.file_io_buttons),
-                sg.Col(self.cursor_mode_buttons),
-                sg.Col(self.action_buttons),
-            ]
+                sg.Col(self.file_io_buttons, expand_x=True),
+                sg.Col(self.cursor_mode_buttons, expand_x=True),
+                sg.Col(self.action_buttons, expand_x=True),
+            ],
         ]
 
         self.col_pages_list = [
