@@ -4,8 +4,9 @@ import PySimpleGUI as sg
 
 
 class Gui:
-    def __init__(self, markup_manager):
+    def __init__(self, pdf_manager, markup_manager):
         self.markup_manager = markup_manager
+        self.pdf_manager = pdf_manager
         self.current_page = 1
         self.cursor_mode = CursorMode.SELECT
         self.selected_cue = None
@@ -56,7 +57,7 @@ class Gui:
         ]
 
         self.col_pages_list = [
-            [sg.Text("Rock of Ages.pdf", size=(80, 3), key="-FILENAME-")],
+            [sg.Text(size=(80, 3), key="-FILENAME-")],
             [
                 sg.Listbox(
                     values=self.pdf_files,
@@ -87,7 +88,10 @@ class Gui:
 
         self.layout = [
             [self.menu],
-            [sg.Col(self.col_pages_list), sg.Col(self.col_page_view)],
+            [
+                sg.Col(self.col_pages_list),
+                sg.Col(self.col_page_view, expand_x=True, expand_y=True),
+            ],
         ]
 
         self.window = sg.Window(
@@ -173,7 +177,10 @@ class Gui:
 
         if pdf_file_path:  # Check if a file was selected
             print("loading file ", pdf_file_path)
-            # TODO: Use pdf manager here
+            self.window["-FILENAME-"].update(pdf_file_path)
+            self.pdf_manager.open_pdf(pdf_file_path)
+            image_data = self.pdf_manager.get_page_as_png_image_data(0, (300, 300))
+            self.window["-IMAGE-"].update(data=image_data)
         else:
             print("File loading cancelled.")
 
