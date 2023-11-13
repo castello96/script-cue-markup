@@ -7,7 +7,7 @@ class Gui:
     def __init__(self, pdf_manager, markup_manager):
         self.markup_manager = markup_manager
         self.pdf_manager = pdf_manager
-        self.current_page = 1
+        self.current_page = 0
         self.cursor_mode = CursorMode.SELECT
         self.selected_cue = None
 
@@ -21,30 +21,32 @@ class Gui:
             "Page 4 (3 cues) 7",
         ]
 
+        button_padding = (1, 1)
         self.file_io_buttons = [
             [
-                sg.Button("Load PDF", key="-LOAD_PDF-"),
-                sg.Button("Load Markup", key="-LOAD_MARKUP-"),
-                sg.Button("Save As", key="-SAVE_AS-"),
-                sg.Button("Save", key="-SAVE-"),
-                sg.Button("Export", key="-EXPORT-"),
+                sg.Button("Load PDF", key="-LOAD_PDF-", pad=button_padding),
+                sg.Button("Load Markup", key="-LOAD_MARKUP-", pad=button_padding),
+                sg.Button("Save As", key="-SAVE_AS-", pad=button_padding),
+                sg.Button("Save", key="-SAVE-", pad=button_padding),
+                sg.Button("Export", key="-EXPORT-", pad=button_padding),
             ],
         ]
 
         self.cursor_mode_buttons = [
             [
-                sg.Button("Select", key="-SELECT-"),
-                sg.Button("Add Cue", key="-ADD_CUE-"),
-                sg.Button("Annotate", key="-ANNOTATE-"),
-                sg.Button("Offset", key="-OFFSET-"),
+                sg.Button("Select", key="-SELECT-", pad=button_padding),
+                sg.Button("Add Cue", key="-ADD_CUE-", pad=button_padding),
+                sg.Button("Annotate", key="-ANNOTATE-", pad=button_padding),
+                sg.Button("Offset", key="-OFFSET-", pad=button_padding),
             ],
             [sg.Text("Cursor Mode", key="-CURSOR_MODE-")],
         ]
 
         self.action_buttons = [
-            [sg.Button("Delete", key="-DELETE-")],
+            [sg.Button("Delete", key="-DELETE-", pad=button_padding)],
         ]
 
+        # TODO: Move all these to an actual menu instead of buttons
         self.menu = [
             # TODO: Add tooltips for all buttons
             [
@@ -74,8 +76,8 @@ class Gui:
         self.col_page_view = [
             [sg.Image(key="-IMAGE-", expand_x=True, expand_y=True)],
             [
-                sg.Button("Next", size=(8, 2)),
-                sg.Button("Prev", size=(8, 2)),
+                sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
+                sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
                 sg.Text(
                     f"Page {self.current_page} of {len(self.pdf_files)}",
                     size=(15, 1),
@@ -129,7 +131,7 @@ class Gui:
             elif event == "-DELETE-":
                 self.handle_delete_key_press()
             elif event == "-PREV_PAGE-":
-                self.handle_previous_page_click
+                self.handle_previous_page_click()
             elif event == "-NEXT_PAGE-":
                 self.handle_next_page_click()
 
@@ -177,7 +179,9 @@ class Gui:
             print("loading file ", pdf_file_path)
             self.window["-FILENAME-"].update(pdf_file_path)
             self.pdf_manager.open_pdf(pdf_file_path)
-            image_data = self.pdf_manager.get_page_as_png_image_data(0, (300, 300))
+            image_data = self.pdf_manager.get_page_as_png_image_data(
+                self.current_page, (400, 400)
+            )
             self.window["-IMAGE-"].update(data=image_data)
         else:
             print("File loading cancelled.")
@@ -222,10 +226,20 @@ class Gui:
         self.window["-CURSOR_MODE-"].update(f"Cursor Mode: {self.cursor_mode.name}")
 
     def handle_next_page_click(self):
-        pass
+        image_data = self.pdf_manager.get_page_as_png_image_data(
+            self.current_page + 1, (400, 400)
+        )
+        if image_data:
+            self.current_page += 1
+            self.window["-IMAGE-"].update(data=image_data)
 
     def handle_previous_page_click(self):
-        pass
+        image_data = self.pdf_manager.get_page_as_png_image_data(
+            self.current_page - 1, (400, 400)
+        )
+        if image_data:
+            self.current_page -= 1
+            self.window["-IMAGE-"].update(data=image_data)
 
     def render_pdf_page(self, page_number):
         pass
