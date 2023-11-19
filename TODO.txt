@@ -5,3 +5,5 @@
 * Add a horizontal line that follows the mouse in markup mode
 * Add annotations to cues
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
+* Fool proof design
+* Allow Qlab cues to be added

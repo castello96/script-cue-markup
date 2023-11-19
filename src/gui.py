@@ -3,7 +3,7 @@ from cursor_mode import CursorMode
 import PySimpleGUI as sg
 
 
-IMAGE_SIZE = (700, 650)
+IMAGE_SIZE = (900, 700)
 
 
 class Gui:
@@ -77,7 +77,13 @@ class Gui:
         ]
 
         self.col_page_view = [
-            [sg.Image(key="-IMAGE-", expand_x=True, expand_y=True)],
+            [
+                sg.Image(
+                    key="-IMAGE-",
+                    size=IMAGE_SIZE,
+                    enable_events=True,
+                )
+            ],
             [
                 sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
                 sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
@@ -92,8 +98,12 @@ class Gui:
         self.layout = [
             [self.menu],
             [
-                sg.Col(self.col_pages_list),
-                sg.Col(self.col_page_view, expand_x=True, expand_y=True),
+                sg.Col(
+                    self.col_pages_list, size=(333, None), expand_x=True, expand_y=True
+                ),
+                sg.Col(
+                    self.col_page_view, size=(667, None), expand_x=True, expand_y=True
+                ),
             ],
         ]
 
@@ -102,12 +112,17 @@ class Gui:
             self.layout,
             return_keyboard_events=True,
             enable_close_attempted_event=True,
-            size=(1500, 900),
+            size=(1000, 900),
+            finalize=True,
         )
+
+        self.window.bind("<Motion>", "Motion")
 
     def launch_gui(self):
         while True:
             event, values = self.window.read()
+            if event == "Motion":
+                continue
             print(event)
             if (
                 event in (sg.WIN_CLOSE_ATTEMPTED_EVENT, "Exit")
@@ -138,6 +153,9 @@ class Gui:
                 self.handle_previous_page_click()
             elif event == "-NEXT_PAGE-":
                 self.handle_next_page_click()
+            elif event.startswith("-IMAGE-"):
+                e = self.window.user_bind_event
+                print("e: ", e)
 
         self.window.close()
 
@@ -184,7 +202,7 @@ class Gui:
             self.window["-FILENAME-"].update(pdf_file_path)
             self.pdf_manager.open_pdf(pdf_file_path)
             image_data = self.pdf_manager.get_page_as_png_image_data(
-                self.current_page, (400, 400)
+                self.current_page, IMAGE_SIZE
             )
             self.window["-IMAGE-"].update(data=image_data)
         else:
@@ -231,7 +249,7 @@ class Gui:
 
     def handle_next_page_click(self):
         image_data = self.pdf_manager.get_page_as_png_image_data(
-            self.current_page + 1, (400, 400)
+            self.current_page + 1, IMAGE_SIZE
         )
         if image_data:
             self.current_page += 1
@@ -239,17 +257,22 @@ class Gui:
 
     def handle_previous_page_click(self):
         image_data = self.pdf_manager.get_page_as_png_image_data(
-            self.current_page - 1, (400, 400)
+            self.current_page - 1, IMAGE_SIZE
         )
         if image_data:
             self.current_page -= 1
             self.window["-IMAGE-"].update(data=image_data)
 
+    # TODO: Abstract logic into this function
     def render_pdf_page(self, page_number):
         pass
 
+    def handle_image_click(self, event):
+        if event.startswith("-IMAGE"):
+            print("[handle_image_click] event: ", event)
+            _, x, y = event.split(";")
+            print(_, x, y)
+            self.draw_line_on_image(int(y))
+
     def draw_line(self, reader, page_number, y_coordinate, cue_number):
-        # Since we cannot directly draw on the PDF using PyPDF2, we need to define
-        # what we mean by drawing a line. We can prepare the data for drawing
-        # which will be used by the front end.
         pass

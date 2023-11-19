@@ -24,6 +24,7 @@ class PdfManager:
             print(f"The file {file_path} was not found.")
             return None, 0
 
+    # TODO: This function should check for cues on this page a draw them before returning the image
     def get_page_as_png_image_data(self, page_number=0, image_size=(100, 100)):
         images = convert_from_path(
             self.file_path, first_page=page_number + 1, last_page=page_number + 1
