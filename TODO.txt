@@ -7,3 +7,9 @@
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
 * Fool proof design
 * Allow Qlab cues to be added
+
+
+
+NEXT:
+* Page offset work
+    * Looking pretty good but need to be able to load the "negative" page numbers

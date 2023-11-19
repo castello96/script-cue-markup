@@ -11,6 +11,7 @@ class Gui:
         self.markup_manager = markup_manager
         self.pdf_manager = pdf_manager
         self.current_page = 0
+        self.page_offset = 0
         self.cursor_mode = CursorMode.SELECT
         self.selected_cue = None
 
@@ -160,18 +161,22 @@ class Gui:
         self.window.close()
 
     def handle_page_click(self, y_click):
-        page = self.markup_manager.get_page(self.current_page)
+        page = self.markup_manager.get_page(self.get_current_page())
         if self.cursor_mode == CursorMode.SELECT:
-            self.select_cue(self.current_page, y_click)
+            self.select_cue(self.get_current_page(), y_click)
         elif self.cursor_mode == CursorMode.CUE:
             page.create_new_cue_at_y_coordinate(y_click)
         elif self.cursor_mode == CursorMode.ANNOTATE:
             pass
+        elif self.cursor_mode == CursorMode.OFFSET:
+            self.page_offset = self.current_page
+            self.window["-FILE_NUM-"].update(f"Page {self.get_current_page()} of ???")
+            return
 
         # Rerender the page
-        # self.render_pdf_page(self.current_page)
+        # self.render_pdf_page(self.get_current_page())
         image_data = self.pdf_manager.get_pdf_page(
-            self.markup_manager, self.current_page, IMAGE_SIZE
+            self.markup_manager, self.get_current_page(), IMAGE_SIZE
         )
         self.window["-IMAGE-"].update(data=image_data)
 
@@ -204,7 +209,7 @@ class Gui:
             self.window["-FILENAME-"].update(pdf_file_path)
             self.pdf_manager.open_pdf(pdf_file_path)
             image_data = self.pdf_manager.get_pdf_page(
-                self.markup_manager, self.current_page, IMAGE_SIZE
+                self.markup_manager, self.get_current_page(), IMAGE_SIZE
             )
             self.window["-IMAGE-"].update(data=image_data)
         else:
@@ -251,23 +256,28 @@ class Gui:
 
     def handle_next_page_click(self):
         image_data = self.pdf_manager.get_pdf_page(
-            self.markup_manager, self.current_page + 1, IMAGE_SIZE
+            self.markup_manager, self.get_current_page() + 1, IMAGE_SIZE
         )
         if image_data:
             self.current_page += 1
             self.window["-IMAGE-"].update(data=image_data)
+            self.window["-FILE_NUM-"].update(f"Page {self.get_current_page()} of ???")
 
     def handle_previous_page_click(self):
         image_data = self.pdf_manager.get_pdf_page(
-            self.markup_manager, self.current_page - 1, IMAGE_SIZE
+            self.markup_manager, self.get_current_page() - 1, IMAGE_SIZE
         )
         if image_data:
             self.current_page -= 1
             self.window["-IMAGE-"].update(data=image_data)
+            self.window["-FILE_NUM-"].update(f"Page {self.get_current_page()} of ???")
 
-    # TODO: Abstract logic into this function
+    # TODO: Abstract logic into this function (also take a param for page current page switching)
     def render_pdf_page(self, page_number):
         pass
 
     def draw_line(self, reader, page_number, y_coordinate, cue_number):
         pass
+
+    def get_current_page(self):
+        return self.current_page - self.page_offset
