@@ -10,7 +10,7 @@ class Page:
         self.number = number
         self.cues = cues if cues is not None else []
 
-    def add_cue(self, cue_to_add_y_coordinate):
+    def create_new_cue_at_y_coordinate(self, cue_to_add_y_coordinate):
         # TODO: Add logic to prevent adding a cue on top of a preexisting one
         # Find the index where the new cue should be inserted
         insert_index = None
@@ -30,6 +30,21 @@ class Page:
         else:
             new_cue_number = len(self.cues) + 1
             self.cues.append(Cue(cue_to_add_y_coordinate, new_cue_number))
+
+    def add_existing_cue(self, cue_to_add):
+        insert_index = None
+        for index, current_cue in enumerate(self.cues):
+            if cue_to_add.number <= current_cue.number:
+                insert_index = index
+                break
+
+        if insert_index is not None:
+            self.cues.insert(insert_index, cue_to_add)
+            # Update cue numbers for subsequent cues
+            for i in range(insert_index + 1, len(self.cues)):
+                self.cues[i].number = i + 1
+        else:
+            self.cues.append(cue_to_add)
 
     def remove_cue(self, cue_to_remove):
         # TODO: Could start the index at self.cues[cue_to_remove.number - 1] instead of the beginning

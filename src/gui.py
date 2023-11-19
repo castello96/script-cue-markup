@@ -119,6 +119,7 @@ class Gui:
         self.window.bind("<Motion>", "Motion")
 
     def launch_gui(self):
+        self.markup_manager.load_data("./test/session_data.json")
         while True:
             event, values = self.window.read()
             if event == "Motion":
@@ -132,7 +133,7 @@ class Gui:
             elif event == "-LOAD_PDF-":
                 self.handle_load_pdf_file()
             elif event == "-LOAD_MARKUP-":
-                self.handle_load_file()
+                self.handle_load_markup_file()
             elif event == "-SAVE_AS-":
                 self.handle_save_file_as()
             elif event == "-SAVE-":
@@ -164,7 +165,7 @@ class Gui:
         if self.cursor_mode == CursorMode.SELECT:
             self.select_cue(page_number, y_click)
         elif self.cursor_mode == CursorMode.CUE:
-            self.markup_manager.add_cue(page_number, y_click)
+            self.markup_manager.create_new_cue_at_y_coordinate(page_number, y_click)
         elif self.cursor_mode == CursorMode.ANNOTATE:
             pass
 
@@ -201,8 +202,8 @@ class Gui:
             print("loading file ", pdf_file_path)
             self.window["-FILENAME-"].update(pdf_file_path)
             self.pdf_manager.open_pdf(pdf_file_path)
-            image_data = self.pdf_manager.get_page_as_png_image_data(
-                self.current_page, IMAGE_SIZE
+            image_data = self.pdf_manager.get_pdf_page(
+                self.markup_manager, self.current_page, IMAGE_SIZE
             )
             self.window["-IMAGE-"].update(data=image_data)
         else:
@@ -248,16 +249,16 @@ class Gui:
         self.window["-CURSOR_MODE-"].update(f"Cursor Mode: {self.cursor_mode.name}")
 
     def handle_next_page_click(self):
-        image_data = self.pdf_manager.get_page_as_png_image_data(
-            self.current_page + 1, IMAGE_SIZE
+        image_data = self.pdf_manager.get_pdf_page(
+            self.markup_manager, self.current_page + 1, IMAGE_SIZE
         )
         if image_data:
             self.current_page += 1
             self.window["-IMAGE-"].update(data=image_data)
 
     def handle_previous_page_click(self):
-        image_data = self.pdf_manager.get_page_as_png_image_data(
-            self.current_page - 1, IMAGE_SIZE
+        image_data = self.pdf_manager.get_pdf_page(
+            self.markup_manager, self.current_page - 1, IMAGE_SIZE
         )
         if image_data:
             self.current_page -= 1

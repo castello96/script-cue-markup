@@ -24,7 +24,7 @@ class MarkupManager:
                         print("cue_dict: ", cue_dict)
                         cue = Cue.from_dict(cue_dict)
                         print("cue: ", cue)
-                        page.add_cue(cue.y_coordinate)
+                        page.add_existing_cue(cue)
                         print("Added cue to page: ", page)
                     self.markup.add_page(page)
                     print("Added page to markup: ", self.markup)
@@ -51,7 +51,7 @@ class MarkupManager:
 
     def add_cue(self, page_number, y_coordinate):
         page = self.markup.get_page(page_number)
-        page.add_cue(y_coordinate)
+        page.create_new_cue_at_y_coordinate(y_coordinate)
 
     def delete_cue(self, page_number, cue):
         page = self.markup.get_page(page_number)
