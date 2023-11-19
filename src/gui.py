@@ -155,24 +155,25 @@ class Gui:
             elif event == "-NEXT_PAGE-":
                 self.handle_next_page_click()
             elif event.startswith("-IMAGE-"):
-                e = self.window.user_bind_event
-                print("e: ", e)
+                self.handle_page_click(self.window.user_bind_event.y)
 
         self.window.close()
 
-    def handle_page_click(self, page_number, y_click):
-        print("Page before: ", self.markup_manager.get_page(page_number))
+    def handle_page_click(self, y_click):
+        page = self.markup_manager.get_page(self.current_page)
         if self.cursor_mode == CursorMode.SELECT:
-            self.select_cue(page_number, y_click)
+            self.select_cue(self.current_page, y_click)
         elif self.cursor_mode == CursorMode.CUE:
-            self.markup_manager.create_new_cue_at_y_coordinate(page_number, y_click)
+            page.create_new_cue_at_y_coordinate(y_click)
         elif self.cursor_mode == CursorMode.ANNOTATE:
             pass
 
-        print("Page after: ", self.markup_manager.get_page(page_number))
-
         # Rerender the page
-        self.render_pdf_page(page_number)
+        # self.render_pdf_page(self.current_page)
+        image_data = self.pdf_manager.get_pdf_page(
+            self.markup_manager, self.current_page, IMAGE_SIZE
+        )
+        self.window["-IMAGE-"].update(data=image_data)
 
     def handle_load_markup_file(self):
         # TODO: file_types is not filtering to JSON
@@ -267,13 +268,6 @@ class Gui:
     # TODO: Abstract logic into this function
     def render_pdf_page(self, page_number):
         pass
-
-    def handle_image_click(self, event):
-        if event.startswith("-IMAGE"):
-            print("[handle_image_click] event: ", event)
-            _, x, y = event.split(";")
-            print(_, x, y)
-            self.draw_line_on_image(int(y))
 
     def draw_line(self, reader, page_number, y_coordinate, cue_number):
         pass
