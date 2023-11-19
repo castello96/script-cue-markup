@@ -3,6 +3,9 @@ from cursor_mode import CursorMode
 import PySimpleGUI as sg
 
 
+IMAGE_SIZE = (700, 650)
+
+
 class Gui:
     def __init__(self, pdf_manager, markup_manager):
         self.markup_manager = markup_manager
@@ -61,7 +64,7 @@ class Gui:
             [
                 sg.Listbox(
                     values=self.pdf_files,
-                    size=(60, 30),
+                    size=(30, 90),
                     key="-LISTBOX-",
                     enable_events=True,
                 )
@@ -99,6 +102,7 @@ class Gui:
             self.layout,
             return_keyboard_events=True,
             enable_close_attempted_event=True,
+            size=(1500, 900),
         )
 
     def launch_gui(self):
