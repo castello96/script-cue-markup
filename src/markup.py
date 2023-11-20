@@ -19,6 +19,9 @@ class Markup:
             self.pages[page_number] = Page(int(page_number))
         return self.pages[page_number]
 
+    def get_pages(self):
+        return self.pages
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Markup):
             # don't attempt to compare against unrelated types

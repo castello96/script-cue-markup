@@ -12,17 +12,7 @@ class Gui:
         self.pdf_manager = pdf_manager
         self.current_page = 0
         self.cursor_mode = CursorMode.SELECT
-        self.selected_cue = None
-
-        self.pdf_files = [
-            "Page -2 (0 cues) 1",
-            "Page -1 (0 cues) 2",
-            "Page 0 (2 cues) 3",
-            "Page 1 (2 cues) 4",
-            "Page 2 (1 cues) 5",
-            "Page 3 (1 cues) 6",
-            "Page 4 (3 cues) 7",
-        ]
+        self.selected_cue = {"page_number": 0, "cue": None}
 
         button_padding = (1, 1)
         self.file_io_buttons = [
@@ -63,7 +53,7 @@ class Gui:
             [sg.Text(size=(80, 3), key="-FILENAME-")],
             [
                 sg.Listbox(
-                    values=self.pdf_files,
+                    values="",
                     size=(30, 90),
                     key="-LISTBOX-",
                     enable_events=True,
@@ -88,7 +78,7 @@ class Gui:
                 sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
                 sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
                 sg.Text(
-                    f"Page {self.current_page} of {len(self.pdf_files)}",
+                    f"Page {self.current_page} of ???",
                     size=(15, 1),
                     key="-FILE_NUM-",
                 ),
@@ -165,17 +155,14 @@ class Gui:
             self.select_cue(self.current_page, y_click)
         elif self.cursor_mode == CursorMode.CUE:
             page.create_new_cue_at_y_coordinate(y_click)
+            self.render_pages_in_list_box()
         elif self.cursor_mode == CursorMode.ANNOTATE:
             return
         elif self.cursor_mode == CursorMode.OFFSET:
             return
 
         # Rerender the page
-        # self.render_pdf_page(self.current_page)
-        image_data = self.pdf_manager.get_pdf_page(
-            self.markup_manager, self.current_page, IMAGE_SIZE
-        )
-        self.window["-IMAGE-"].update(data=image_data)
+        self.render_pdf_page(self.current_page)
 
     def handle_load_markup_file(self):
         # TODO: file_types is not filtering to JSON
@@ -189,6 +176,7 @@ class Gui:
         if markup_file_path:  # Check if a file was selected
             print("loading file ", markup_file_path)
             self.markup_manager.load_data(markup_file_path)
+            self.render_pages_in_list_box()
         else:
             print("File loading cancelled.")
 
@@ -205,10 +193,7 @@ class Gui:
             print("loading file ", pdf_file_path)
             self.window["-FILENAME-"].update(pdf_file_path)
             self.pdf_manager.open_pdf(pdf_file_path)
-            image_data = self.pdf_manager.get_pdf_page(
-                self.markup_manager, self.current_page, IMAGE_SIZE
-            )
-            self.window["-IMAGE-"].update(data=image_data)
+            self.render_pdf_page(self.current_page)
         else:
             print("File loading cancelled.")
 
@@ -237,6 +222,7 @@ class Gui:
             self.markup_manager.delete_cue(
                 self.selected_cue["page_number"], self.selected_cue["cue"]
             )
+            self.render_pages_in_list_box()
             return
         print("Cannot delete! No cue selected")
 
@@ -245,6 +231,10 @@ class Gui:
         if cue:
             self.selected_cue = {"page_number": page_number, "cue": cue}
             print(f"Cue selected: {self.selected_cue}")
+        # else:
+        #     # TODO: We should be setting the whole cue to none but then it messes up when we call self.selected_cue["cue"] in render_pdf_page.
+        #       This also just causes it to crash when there are two clicks in a row. Figure it out
+        #     self.select_cue = {"page_number": 0, "cue": None}
 
     def handle_update_cursor_mode(self, cursor_mode):
         # TODO: Update this to outline the currently selected button
@@ -269,9 +259,20 @@ class Gui:
             self.window["-IMAGE-"].update(data=image_data)
             self.window["-FILE_NUM-"].update(f"Page {self.current_page} of ???")
 
+    def render_pages_in_list_box(self):
+        pages = self.markup_manager.get_all_pages()
+        listbox_data = [
+            f"{page.number} ({len(page.cues)} cues)" for page in pages.values()
+        ]
+        self.window["-LISTBOX-"].update(values=listbox_data)
+
     # TODO: Abstract logic into this function (also take a param for page current page switching)
     def render_pdf_page(self, page_number):
-        pass
+        image_data = self.pdf_manager.get_pdf_page(
+            self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue["cue"]
+        )
+        if image_data:
+            self.window["-IMAGE-"].update(data=image_data)
 
     def draw_line(self, reader, page_number, y_coordinate, cue_number):
         pass

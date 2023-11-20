@@ -59,3 +59,6 @@ class MarkupManager:
 
     def get_page(self, page_number):
         return self.markup.get_page(page_number)
+
+    def get_all_pages(self):
+        return self.markup.get_pages()
