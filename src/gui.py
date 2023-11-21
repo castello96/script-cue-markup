@@ -12,7 +12,7 @@ class Gui:
         self.pdf_manager = pdf_manager
         self.current_page = 0
         self.cursor_mode = CursorMode.SELECT
-        self.selected_cue = {"page_number": 0, "cue": None}
+        self.selected_cue = None
 
         button_padding = (1, 1)
         self.file_io_buttons = [
@@ -114,7 +114,7 @@ class Gui:
             event, values = self.window.read()
             if event == "Motion":
                 continue
-            print(event)
+            # print(event)
             if (
                 event in (sg.WIN_CLOSE_ATTEMPTED_EVENT, "Exit")
                 and sg.popup_yes_no("Do you really want to exit?") == "Yes"
@@ -219,22 +219,18 @@ class Gui:
     def handle_delete_key_press(self):
         # Check if there is a selected cue and if so, delete it
         if self.selected_cue:
-            self.markup_manager.delete_cue(
-                self.selected_cue["page_number"], self.selected_cue["cue"]
-            )
+            self.markup_manager.delete_cue(self.current_page, self.selected_cue)
             self.render_pages_in_list_box()
             return
         print("Cannot delete! No cue selected")
 
     def select_cue(self, page_number, y_click):
         cue = self.markup_manager.get_cue_at_y_coordinate(page_number, y_click)
+
         if cue:
-            self.selected_cue = {"page_number": page_number, "cue": cue}
-            print(f"Cue selected: {self.selected_cue}")
-        # else:
-        #     # TODO: We should be setting the whole cue to none but then it messes up when we call self.selected_cue["cue"] in render_pdf_page.
-        #       This also just causes it to crash when there are two clicks in a row. Figure it out
-        #     self.select_cue = {"page_number": 0, "cue": None}
+            self.selected_cue = cue
+        else:
+            self.selected_cue = None
 
     def handle_update_cursor_mode(self, cursor_mode):
         # TODO: Update this to outline the currently selected button
@@ -269,10 +265,7 @@ class Gui:
     # TODO: Abstract logic into this function (also take a param for page current page switching)
     def render_pdf_page(self, page_number):
         image_data = self.pdf_manager.get_pdf_page(
-            self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue["cue"]
+            self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue
         )
         if image_data:
             self.window["-IMAGE-"].update(data=image_data)
-
-    def draw_line(self, reader, page_number, y_coordinate, cue_number):
-        pass
