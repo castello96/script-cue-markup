@@ -7,6 +7,4 @@
 * Fool proof design
 * Allow Qlab cues to be added
 * Allow user to go to page by selecting in listbox
-* Implement deletion of selected cue
-* Implement unselecting cue by clicking anywhere
 * Implement the export function

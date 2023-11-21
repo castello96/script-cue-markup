@@ -114,7 +114,7 @@ class Gui:
             event, values = self.window.read()
             if event == "Motion":
                 continue
-            # print(event)
+            print(event)
             if (
                 event in (sg.WIN_CLOSE_ATTEMPTED_EVENT, "Exit")
                 and sg.popup_yes_no("Do you really want to exit?") == "Yes"
@@ -219,7 +219,9 @@ class Gui:
     def handle_delete_key_press(self):
         # Check if there is a selected cue and if so, delete it
         if self.selected_cue:
+            print("Deleting selected cue: ", self.selected_cue)
             self.markup_manager.delete_cue(self.current_page, self.selected_cue)
+            self.render_pdf_page(self.current_page)
             self.render_pages_in_list_box()
             return
         print("Cannot delete! No cue selected")
