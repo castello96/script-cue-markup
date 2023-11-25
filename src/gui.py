@@ -280,7 +280,9 @@ class Gui:
     def render_pages_in_list_box(self):
         pages = self.markup_manager.get_all_pages()
         listbox_data = [
-            f"{page.number} ({len(page.cues)} cues)" for page in pages.values()
+            f"{page.number} ({len(page.cues)} cues)"
+            for page in pages.values()
+            if len(page.cues) > 0
         ]
         self.window["-LISTBOX-"].update(values=listbox_data)
 
