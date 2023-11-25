@@ -260,28 +260,20 @@ class Gui:
         self.window["-CURSOR_MODE-"].update(f"Cursor Mode: {self.cursor_mode.name}")
 
     def handle_next_page_click(self):
-        page_image = self.pdf_manager.get_pdf_page_with_cues(
-            self.markup_manager, self.current_page + 1, IMAGE_SIZE
-        )
-        image_data = self.pdf_manager.convert_image_to_data(
-            page_image, FileType.PNG.value
-        )
-        if image_data:
-            self.current_page += 1
-            self.window["-IMAGE-"].update(data=image_data)
-            self.window["-FILE_NUM-"].update(
-                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
-            )
+        self.render_pdf_page(self.current_page + 1)
 
     def handle_previous_page_click(self):
+        self.render_pdf_page(self.current_page - 1)
+
+    def render_pdf_page(self, page_number):
         page_image = self.pdf_manager.get_pdf_page_with_cues(
-            self.markup_manager, self.current_page - 1, IMAGE_SIZE
+            self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue
         )
         image_data = self.pdf_manager.convert_image_to_data(
             page_image, FileType.PNG.value
         )
         if image_data:
-            self.current_page -= 1
+            self.current_page = page_number
             self.window["-IMAGE-"].update(data=image_data)
             self.window["-FILE_NUM-"].update(
                 f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
@@ -299,18 +291,3 @@ class Gui:
             else:
                 listbox_data.append(f"{page_num_string}")
         self.window["-LISTBOX-"].update(values=listbox_data)
-
-    # TODO: Abstract logic into this function (also take a param for page current page switching)
-    def render_pdf_page(self, page_number):
-        page_image = self.pdf_manager.get_pdf_page_with_cues(
-            self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue
-        )
-        image_data = self.pdf_manager.convert_image_to_data(
-            page_image, FileType.PNG.value
-        )
-        if image_data:
-            self.window["-IMAGE-"].update(data=image_data)
-            self.current_page = page_number
-            self.window["-FILE_NUM-"].update(
-                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
-            )

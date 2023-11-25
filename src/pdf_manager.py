@@ -138,7 +138,6 @@ class PdfManager:
 
     def convert_image_to_data(self, page_image, file_type: FileType):
         bio = io.BytesIO()
-        print(file_type)
         page_image.save(bio, format=file_type)
         image_data = bio.getvalue()
         return image_data

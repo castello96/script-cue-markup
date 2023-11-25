@@ -19,15 +19,10 @@ class MarkupManager:
                 raw_data = json.load(file)
                 for page_number, cues in raw_data.items():
                     page = Page(page_number)
-                    print("Created new page", page)
                     for cue_dict in cues:
-                        print("cue_dict: ", cue_dict)
                         cue = Cue.from_dict(cue_dict)
-                        print("cue: ", cue)
                         page.add_existing_cue(cue)
-                        print("Added cue to page: ", page)
                     self.markup.add_page(page)
-                    print("Added page to markup: ", self.markup)
                 print("data successfully loaded: ", self.markup)
         except FileNotFoundError:
             print("File not found, starting with empty markup")
