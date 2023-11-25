@@ -32,7 +32,9 @@ class PdfManager:
 
         for i in range(len(self.pdf.pages)):
             # Get the page as an image with overlays
-            page_image = self.get_pdf_page_with_cues(markup_manager, i)
+            page_image = self.get_pdf_page_with_cues(
+                markup_manager, i, image_size=(1350, 1050)
+            )
 
             # Convert image to PDF data and write to a temp file
             page_pdf_data = self.convert_image_to_data(page_image, FileType.PDF.value)
@@ -71,7 +73,10 @@ class PdfManager:
 
     def convert_pdf_page_to_image(self, page_number, image_size):
         images = convert_from_path(
-            self.file_path, first_page=page_number + 1, last_page=page_number + 1
+            self.file_path,
+            first_page=page_number + 1,
+            last_page=page_number + 1,
+            dpi=300,
         )
         if not images:
             return None
