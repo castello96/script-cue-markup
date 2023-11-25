@@ -84,7 +84,7 @@ class Gui:
                 sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
                 sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
                 sg.Text(
-                    f"Page {self.current_page} of ???",
+                    "",
                     size=(15, 1),
                     key="-FILE_NUM-",
                 ),
@@ -159,6 +159,9 @@ class Gui:
         self.window.close()
 
     def handle_page_click(self, y_click):
+        if not self.current_page:
+            return
+
         page = self.markup_manager.get_page(self.current_page)
         if self.cursor_mode == CursorMode.SELECT:
             self.select_cue(self.current_page, y_click)
@@ -266,7 +269,9 @@ class Gui:
         if image_data:
             self.current_page += 1
             self.window["-IMAGE-"].update(data=image_data)
-            self.window["-FILE_NUM-"].update(f"Page {self.current_page} of ???")
+            self.window["-FILE_NUM-"].update(
+                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
+            )
 
     def handle_previous_page_click(self):
         page_image = self.pdf_manager.get_pdf_page_with_cues(
@@ -278,15 +283,21 @@ class Gui:
         if image_data:
             self.current_page -= 1
             self.window["-IMAGE-"].update(data=image_data)
-            self.window["-FILE_NUM-"].update(f"Page {self.current_page} of ???")
+            self.window["-FILE_NUM-"].update(
+                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
+            )
 
     def render_pages_in_list_box(self):
+        listbox_data = []
         pages = self.markup_manager.get_all_pages()
-        listbox_data = [
-            f"{page.number} ({len(page.cues)} cues)"
-            for page in pages.values()
-            if len(page.cues) > 0
-        ]
+        for i in range(self.pdf_manager.get_num_pages()):
+            page_num_string = str(i)
+            if page_num_string in pages and len(pages[page_num_string].cues) > 0:
+                listbox_data.append(
+                    f"{pages[page_num_string].number} ({len(pages[page_num_string].cues)} cues)"
+                )
+            else:
+                listbox_data.append(f"{page_num_string}")
         self.window["-LISTBOX-"].update(values=listbox_data)
 
     # TODO: Abstract logic into this function (also take a param for page current page switching)
@@ -299,3 +310,7 @@ class Gui:
         )
         if image_data:
             self.window["-IMAGE-"].update(data=image_data)
+            self.current_page = page_number
+            self.window["-FILE_NUM-"].update(
+                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
+            )

@@ -27,6 +27,11 @@ class PdfManager:
             print(f"The file {file_path} was not found.")
             return None, 0
 
+    def get_num_pages(self):
+        if not self.pdf:
+            return 0
+        return len(self.pdf.pages)
+
     def convert_pdf_with_overlays(self, markup_manager, output_pdf_path):
         temp_pdf_paths = []
 

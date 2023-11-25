@@ -1,14 +1,15 @@
-* Make it so that you can toggle between select mode and markup mode
-    * In select mode you can click on a cue to select it or in between cues to deselect
-    * In markup mode you can add cues anywhere
 * Add a horizontal line that follows the mouse in markup mode
 * Add annotations to cues
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
 * Fool proof design
 * Allow Qlab cues to be added
-* Allow user to go to page by selecting in listbox
 * Implement key shortcuts
-* Render listbox pages in order
+* * arrow left and right keys for page navigation
+* * delete key for deletions
 * Move all the load, save, save as, export functions to a menu
 * Implement save
 * Implement progress bar for export
+* Update page x of x when we rendner pdf page
+* Possibly add a "go to page" text box
+* Possibly add a got to start / end button
+* two above may not be necessary with the bookmark window
