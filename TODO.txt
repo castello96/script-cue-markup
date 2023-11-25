@@ -8,3 +8,9 @@
 * Allow Qlab cues to be added
 * Allow user to go to page by selecting in listbox
 * Implement the export function
+* Implement key shortcuts
+* Render listbox pages in order
+* Move all the load, save, save as, export functions to a menu
+* Implement save
+* Implement progress bar for export
+* Work on getting the output higher quality

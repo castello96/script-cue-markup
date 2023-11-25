@@ -1,9 +1,15 @@
+from enum import Enum
 from markup_manager import MarkupManager
 from cursor_mode import CursorMode
 import PySimpleGUI as sg
 
 
 IMAGE_SIZE = (900, 700)
+
+
+class FileType(Enum):
+    PNG = "PNG"
+    PDF = "PDF"
 
 
 class Gui:
@@ -213,8 +219,16 @@ class Gui:
         print("file saved! ")
 
     def handle_export_pdf_with_markup(self):
-        # TODO: Export the pdf with markups
-        pass
+        file_path = sg.popup_get_file(
+            "Select a destination to export your pdf and markup overlay to",
+            "Export file",
+            save_as=True,
+            no_window=True,
+            default_extension=".pdf",
+        )
+        # TODO: DO we need to validate that there is an actual file_path here? What about cancellations
+        self.pdf_manager.convert_pdf_with_overlays(self.markup_manager, file_path)
+        print("file saved! ")
 
     def handle_delete_key_press(self):
         # Check if there is a selected cue and if so, delete it
@@ -240,8 +254,11 @@ class Gui:
         self.window["-CURSOR_MODE-"].update(f"Cursor Mode: {self.cursor_mode.name}")
 
     def handle_next_page_click(self):
-        image_data = self.pdf_manager.get_pdf_page(
+        page_image = self.pdf_manager.get_pdf_page_with_cues(
             self.markup_manager, self.current_page + 1, IMAGE_SIZE
+        )
+        image_data = self.pdf_manager.convert_image_to_data(
+            page_image, FileType.PNG.value
         )
         if image_data:
             self.current_page += 1
@@ -249,8 +266,11 @@ class Gui:
             self.window["-FILE_NUM-"].update(f"Page {self.current_page} of ???")
 
     def handle_previous_page_click(self):
-        image_data = self.pdf_manager.get_pdf_page(
+        page_image = self.pdf_manager.get_pdf_page_with_cues(
             self.markup_manager, self.current_page - 1, IMAGE_SIZE
+        )
+        image_data = self.pdf_manager.convert_image_to_data(
+            page_image, FileType.PNG.value
         )
         if image_data:
             self.current_page -= 1
@@ -266,8 +286,11 @@ class Gui:
 
     # TODO: Abstract logic into this function (also take a param for page current page switching)
     def render_pdf_page(self, page_number):
-        image_data = self.pdf_manager.get_pdf_page(
+        page_image = self.pdf_manager.get_pdf_page_with_cues(
             self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue
+        )
+        image_data = self.pdf_manager.convert_image_to_data(
+            page_image, FileType.PNG.value
         )
         if image_data:
             self.window["-IMAGE-"].update(data=image_data)

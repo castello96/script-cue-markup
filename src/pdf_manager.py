@@ -1,7 +1,10 @@
+import os
 import PyPDF2
 from pdf2image import convert_from_path
 from PIL import Image, ImageDraw, ImageFont
 import io
+
+from gui import FileType
 
 
 class PdfManager:
@@ -23,6 +26,48 @@ class PdfManager:
         except FileNotFoundError:
             print(f"The file {file_path} was not found.")
             return None, 0
+
+    def convert_pdf_with_overlays(self, markup_manager, output_pdf_path):
+        temp_pdf_paths = []
+
+        for i in range(len(self.pdf.pages)):
+            # Get the page as an image with overlays
+            page_image = self.get_pdf_page_with_cues(markup_manager, i)
+
+            # Convert image to PDF data and write to a temp file
+            page_pdf_data = self.convert_image_to_data(page_image, FileType.PDF.value)
+            temp_pdf_path = f"{output_pdf_path.split('.')[0]}_temp_page_{i}.pdf"
+            with open(temp_pdf_path, "wb") as temp_pdf_file:
+                temp_pdf_file.write(page_pdf_data)
+            temp_pdf_paths.append(temp_pdf_path)
+
+        # Combine all temp PDFs into one final PDF
+        with open(output_pdf_path, "wb") as final_pdf_file:
+            writer = PyPDF2.PdfWriter()
+            for temp_pdf in temp_pdf_paths:
+                with open(temp_pdf, "rb") as temp_pdf_file:
+                    reader = PyPDF2.PdfReader(temp_pdf_file)
+                    writer.add_page(reader.pages[0])
+            writer.write(final_pdf_file)
+
+        print(f"[convert_pdf_with_overlays]: Combined PDF saved as {output_pdf_path}")
+
+        # Clean up temporary files
+        for temp_pdf in temp_pdf_paths:
+            os.remove(temp_pdf)
+            print(f"Removed temporary file: {temp_pdf}")
+
+    def get_pdf_page_with_cues(
+        self, markup_manager, page_number=0, image_size=(900, 700), selected_cue=None
+    ):
+        print("[get_pdf_page_with_cues]: page ", page_number)
+        # Convert page to image
+        page_image = self.convert_pdf_page_to_image(page_number, image_size)
+        # Draw cues on image
+        self.draw_cues_on_image(
+            markup_manager, page_image, page_number, image_size[0], selected_cue
+        )
+        return page_image
 
     def convert_pdf_page_to_image(self, page_number, image_size):
         images = convert_from_path(
@@ -82,20 +127,9 @@ class PdfManager:
                 font=font,
             )
 
-    def convert_image_to_data(self, page_image):
+    def convert_image_to_data(self, page_image, file_type: FileType):
         bio = io.BytesIO()
-        page_image.save(bio, format="PNG")
+        print(file_type)
+        page_image.save(bio, format=file_type)
         image_data = bio.getvalue()
         return image_data
-
-    def get_pdf_page(
-        self, markup_manager, page_number=0, image_size=(900, 700), selected_cue=None
-    ):
-        # Convert page to image
-        page_image = self.convert_pdf_page_to_image(page_number, image_size)
-        # Draw cues on image
-        self.draw_cues_on_image(
-            markup_manager, page_image, page_number, image_size[0], selected_cue
-        )
-        # Convert image to page data
-        return self.convert_image_to_data(page_image)
