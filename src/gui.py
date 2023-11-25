@@ -152,6 +152,9 @@ class Gui:
                 self.handle_next_page_click()
             elif event.startswith("-IMAGE-"):
                 self.handle_page_click(self.window.user_bind_event.y)
+            elif event == "-LISTBOX-":
+                page_number = int(values["-LISTBOX-"][0].split(" ")[0])
+                self.render_pdf_page(page_number)
 
         self.window.close()
 

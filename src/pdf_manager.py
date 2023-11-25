@@ -62,7 +62,6 @@ class PdfManager:
     def get_pdf_page_with_cues(
         self, markup_manager, page_number=0, image_size=(900, 700), selected_cue=None
     ):
-        print("[get_pdf_page_with_cues]: page ", page_number)
         # Convert page to image
         page_image = self.convert_pdf_page_to_image(page_number, image_size)
         # Draw cues on image
