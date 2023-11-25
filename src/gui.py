@@ -146,9 +146,9 @@ class Gui:
                 self.handle_update_cursor_mode(CursorMode.OFFSET)
             elif event == "-DELETE-":
                 self.handle_delete_key_press()
-            elif event == "-PREV_PAGE-":
+            elif event in ("-PREV_PAGE-", ""):
                 self.handle_previous_page_click()
-            elif event == "-NEXT_PAGE-":
+            elif event in ("-NEXT_PAGE-", ""):
                 self.handle_next_page_click()
             elif event.startswith("-IMAGE-"):
                 self.handle_page_click(self.window.user_bind_event.y)
