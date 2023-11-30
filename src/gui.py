@@ -25,15 +25,37 @@ class Gui:
             ["&File", ["&Load PDF", "&Load Markup", "&Save As", "&Save", "&Export"]]
         ]
 
+        # Define button options
+        self.button_selected_color = ("blue", "white")
+        self.button_normal_color = ("white", "blue")
         button_padding = (1, 1)
         self.cursor_mode_buttons = [
             [
-                sg.Button("Select", key="-SELECT-", pad=button_padding),
-                sg.Button("Add Cue", key="-ADD_CUE-", pad=button_padding),
-                sg.Button("Annotate", key="-ANNOTATE-", pad=button_padding),
-                sg.Button("Offset", key="-OFFSET-", pad=button_padding),
+                sg.Button(
+                    "Select",
+                    key="-SELECT-",
+                    pad=button_padding,
+                    button_color=self.button_normal_color,
+                ),
+                sg.Button(
+                    "Add Cue",
+                    key="-ADD_CUE-",
+                    pad=button_padding,
+                    button_color=self.button_normal_color,
+                ),
+                sg.Button(
+                    "Annotate",
+                    key="-ANNOTATE-",
+                    pad=button_padding,
+                    button_color=self.button_normal_color,
+                ),
+                sg.Button(
+                    "Offset",
+                    key="-OFFSET-",
+                    pad=button_padding,
+                    button_color=self.button_normal_color,
+                ),
             ],
-            [sg.Text("Cursor Mode", key="-CURSOR_MODE-")],
         ]
 
         self.action_buttons = [
@@ -248,9 +270,8 @@ class Gui:
             self.selected_cue = None
 
     def handle_update_cursor_mode(self, cursor_mode):
-        # TODO: Update this to outline the currently selected button
         self.cursor_mode = cursor_mode
-        self.window["-CURSOR_MODE-"].update(f"Cursor Mode: {self.cursor_mode.name}")
+        self.update_button_styles()
 
     def handle_next_page_click(self):
         self.render_pdf_page(self.current_page + 1)
@@ -284,3 +305,19 @@ class Gui:
             else:
                 listbox_data.append(f"{page_num_string}")
         self.window["-LISTBOX-"].update(values=listbox_data)
+
+    # Fool Proof Design
+    def update_button_styles(self):
+        # Update button styles based on the current cursor mode
+        modes = {
+            CursorMode.SELECT: "-SELECT-",
+            CursorMode.CUE: "-ADD_CUE-",
+            CursorMode.ANNOTATE: "-ANNOTATE-",
+            CursorMode.OFFSET: "-OFFSET-",
+        }
+
+        for mode, key in modes.items():
+            if self.cursor_mode == mode:
+                self.window[key].update(button_color=self.button_selected_color)
+            else:
+                self.window[key].update(button_color=self.button_normal_color)

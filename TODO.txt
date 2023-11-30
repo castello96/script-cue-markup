@@ -6,10 +6,9 @@
 * Implement key shortcuts
 * * arrow left and right keys for page navigation
 * * delete key for deletions
-* Move all the load, save, save as, export functions to a menu
 * Implement save
 * Implement progress bar for export
-* Update page x of x when we rendner pdf page
 * Possibly add a "go to page" text box
 * Possibly add a got to start / end button
 * two above may not be necessary with the bookmark window
+* Move delete button to left column and make page take up entire right column
