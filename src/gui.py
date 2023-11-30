@@ -40,7 +40,7 @@ class Gui:
             [sg.Button("Delete", key="-DELETE-", pad=button_padding)],
         ]
 
-        self.menu = [
+        self.mode = [
             # TODO: Add tooltips for all buttons
             [
                 sg.Col(self.cursor_mode_buttons, expand_x=True),
@@ -86,7 +86,7 @@ class Gui:
 
         self.layout = [
             [sg.Menu(self.menu_def)],
-            [self.menu],
+            [self.mode],
             [
                 sg.Col(
                     self.col_pages_list, size=(333, None), expand_x=True, expand_y=True
