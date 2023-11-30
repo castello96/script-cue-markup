@@ -20,17 +20,12 @@ class Gui:
         self.cursor_mode = CursorMode.SELECT
         self.selected_cue = None
 
-        button_padding = (1, 1)
-        self.file_io_buttons = [
-            [
-                sg.Button("Load PDF", key="-LOAD_PDF-", pad=button_padding),
-                sg.Button("Load Markup", key="-LOAD_MARKUP-", pad=button_padding),
-                sg.Button("Save As", key="-SAVE_AS-", pad=button_padding),
-                sg.Button("Save", key="-SAVE-", pad=button_padding),
-                sg.Button("Export", key="-EXPORT-", pad=button_padding),
-            ],
+        # Define the File menu
+        self.menu_def = [
+            ["&File", ["&Load PDF", "&Load Markup", "&Save As", "&Save", "&Export"]]
         ]
 
+        button_padding = (1, 1)
         self.cursor_mode_buttons = [
             [
                 sg.Button("Select", key="-SELECT-", pad=button_padding),
@@ -45,11 +40,9 @@ class Gui:
             [sg.Button("Delete", key="-DELETE-", pad=button_padding)],
         ]
 
-        # TODO: Move all these to an actual menu instead of buttons
         self.menu = [
             # TODO: Add tooltips for all buttons
             [
-                sg.Col(self.file_io_buttons, expand_x=True),
                 sg.Col(self.cursor_mode_buttons, expand_x=True),
                 sg.Col(self.action_buttons, expand_x=True),
             ],
@@ -92,6 +85,7 @@ class Gui:
         ]
 
         self.layout = [
+            [sg.Menu(self.menu_def)],
             [self.menu],
             [
                 sg.Col(
@@ -115,7 +109,6 @@ class Gui:
         self.window.bind("<Motion>", "Motion")
 
     def launch_gui(self):
-        self.markup_manager.load_data("./test/session_data.json")
         while True:
             event, values = self.window.read()
             if event == "Motion":
@@ -126,15 +119,15 @@ class Gui:
                 and sg.popup_yes_no("Do you really want to exit?") == "Yes"
             ):
                 break
-            elif event == "-LOAD_PDF-":
+            elif event == "Load PDF":
                 self.handle_load_pdf_file()
-            elif event == "-LOAD_MARKUP-":
+            elif event == "Load Markup":
                 self.handle_load_markup_file()
-            elif event == "-SAVE_AS-":
+            elif event == "Save As":
                 self.handle_save_file_as()
-            elif event == "-SAVE-":
+            elif event == "Save":
                 self.handle_save_file()
-            elif event == "-EXPORT-":
+            elif event == "Export":
                 self.handle_export_pdf_with_markup()
             elif event in ("-SELECT-", "s"):
                 self.handle_update_cursor_mode(CursorMode.SELECT)
