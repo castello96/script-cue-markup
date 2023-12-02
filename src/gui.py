@@ -4,12 +4,21 @@ from cursor_mode import CursorMode
 import PySimpleGUI as sg
 
 
-IMAGE_SIZE = (900, 700)
-
-
 class FileType(Enum):
     PNG = "PNG"
     PDF = "PDF"
+
+
+window_config = {
+    "x": 1300,
+    "y": 825,
+    "left_col_screen_percentage": 0.25,
+    "right_col_screen_percentage": 0.75,
+}
+image_config = {
+    "x": window_config["x"] * window_config["right_col_screen_percentage"],
+    "y": window_config["y"] * 0.95,
+}
 
 
 class Gui:
@@ -26,7 +35,7 @@ class Gui:
         ]
 
         # Define button options
-        self.button_selected_color = ("blue", "white")
+        self.button_selected_color = ("white", "green")
         self.button_normal_color = ("white", "blue")
         button_padding = (1, 1)
         self.cursor_mode_buttons = [
@@ -59,23 +68,33 @@ class Gui:
         ]
 
         self.action_buttons = [
-            [sg.Button("Delete", key="-DELETE-", pad=button_padding)],
-        ]
-
-        self.mode = [
-            # TODO: Add tooltips for all buttons
             [
-                sg.Col(self.cursor_mode_buttons, expand_x=True),
-                sg.Col(self.action_buttons, expand_x=True),
+                sg.Button(
+                    "Delete",
+                    key="-DELETE-",
+                    pad=button_padding,
+                    expand_x=True,
+                    expand_y=True,
+                    button_color=("white", "red"),
+                )
             ],
         ]
 
         self.col_pages_list = [
-            [sg.Text(size=(80, 3), key="-FILENAME-")],
+            # TODO: Add tooltips for all buttons
+            [
+                sg.Col(self.cursor_mode_buttons, expand_x=True),
+            ],
+            [
+                sg.Col(
+                    self.action_buttons,
+                )
+            ],
+            [sg.Text(key="-FILENAME-")],
             [
                 sg.Listbox(
                     values="",
-                    size=(30, 90),
+                    size=(30, 80),
                     key="-LISTBOX-",
                     enable_events=True,
                 )
@@ -89,32 +108,44 @@ class Gui:
 
         self.col_page_view = [
             [
+                sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
                 sg.Image(
                     key="-IMAGE-",
-                    size=IMAGE_SIZE,
+                    # size=(image_config["x"], image_config["y"]),
                     enable_events=True,
-                )
+                    expand_y=True,
+                    expand_x=True,
+                ),
+                sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
             ],
             [
-                sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
-                sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
-                sg.Text(
-                    "",
-                    size=(15, 1),
-                    key="-FILE_NUM-",
-                ),
+                sg.Text("", expand_x=True),  # Spacer
+                sg.Text("", size=(15, 1), key="-FILE_NUM-", justification="center"),
+                sg.Text("", expand_x=True),  # Spacer
             ],
         ]
 
         self.layout = [
             [sg.Menu(self.menu_def)],
-            [self.mode],
             [
                 sg.Col(
-                    self.col_pages_list, size=(333, None), expand_x=True, expand_y=True
+                    self.col_pages_list,
+                    size=(
+                        window_config["x"]
+                        * window_config["left_col_screen_percentage"],
+                        None,
+                    ),
+                    expand_y=True,
                 ),
                 sg.Col(
-                    self.col_page_view, size=(667, None), expand_x=True, expand_y=True
+                    self.col_page_view,
+                    size=(
+                        window_config["x"]
+                        * window_config["right_col_screen_percentage"],
+                        None,
+                    ),
+                    expand_y=True,
+                    expand_x=True,
                 ),
             ],
         ]
@@ -124,7 +155,7 @@ class Gui:
             self.layout,
             return_keyboard_events=True,
             enable_close_attempted_event=True,
-            size=(1000, 900),
+            size=(window_config["x"], window_config["y"]),
             finalize=True,
         )
 
@@ -281,7 +312,10 @@ class Gui:
 
     def render_pdf_page(self, page_number):
         page_image = self.pdf_manager.get_pdf_page_with_cues(
-            self.markup_manager, page_number, IMAGE_SIZE, self.selected_cue
+            self.markup_manager,
+            page_number,
+            (image_config["x"], image_config["y"]),
+            self.selected_cue,
         )
         image_data = self.pdf_manager.convert_image_to_data(
             page_image, FileType.PNG.value
