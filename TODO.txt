@@ -11,4 +11,10 @@
 * Possibly add a "go to page" text box
 * Possibly add a got to start / end button
 * two above may not be necessary with the bookmark window
-* Move delete button to left column and make page take up entire right column
+* Undo button
+* Redo Button
+* Fix crashing when hitting next on last page
+* Make listbox scroll
+* Capability to select a cue and move its y-coordinate
+* Fix exporting line movement
+* Move application config to a json file and read into an object

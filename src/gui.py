@@ -19,6 +19,10 @@ image_config = {
     "x": window_config["x"] * window_config["right_col_screen_percentage"],
     "y": window_config["y"] * 0.95,
 }
+# image_config = {
+#     "x": 900,
+#     "y": 700,
+# }
 
 
 class Gui:
@@ -279,7 +283,11 @@ class Gui:
             default_extension=".pdf",
         )
         # TODO: DO we need to validate that there is an actual file_path here? What about cancellations
-        self.pdf_manager.convert_pdf_with_overlays(self.markup_manager, file_path)
+        self.pdf_manager.convert_pdf_with_overlays(
+            self.markup_manager,
+            file_path,
+            image_size=(image_config["x"], image_config["y"]),
+        )
         print("file saved! ")
 
     def handle_delete_key_press(self):

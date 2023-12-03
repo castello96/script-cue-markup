@@ -32,13 +32,15 @@ class PdfManager:
             return 0
         return len(self.pdf.pages)
 
-    def convert_pdf_with_overlays(self, markup_manager, output_pdf_path):
+    def convert_pdf_with_overlays(
+        self, markup_manager, output_pdf_path, image_size=(1350, 1050)
+    ):
         temp_pdf_paths = []
 
         for i in range(len(self.pdf.pages)):
             # Get the page as an image with overlays
             page_image = self.get_pdf_page_with_cues(
-                markup_manager, i, image_size=(1350, 1050)
+                markup_manager, i, image_size=image_size
             )
 
             # Convert image to PDF data and write to a temp file
