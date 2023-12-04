@@ -3,6 +3,7 @@ import PyPDF2
 from pdf2image import convert_from_path
 from PIL import Image, ImageDraw, ImageFont
 import io
+from pypdf import PdfMerger
 
 from gui import FileType
 
@@ -38,33 +39,28 @@ class PdfManager:
         temp_pdf_paths = []
 
         for i in range(len(self.pdf.pages)):
-            # Get the page as an image with overlays
             page_image = self.get_pdf_page_with_cues(
                 markup_manager, i, image_size=image_size
             )
-
-            # Convert image to PDF data and write to a temp file
             page_pdf_data = self.convert_image_to_data(page_image, FileType.PDF.value)
             temp_pdf_path = f"{output_pdf_path.split('.')[0]}_temp_page_{i}.pdf"
+
             with open(temp_pdf_path, "wb") as temp_pdf_file:
                 temp_pdf_file.write(page_pdf_data)
+                temp_pdf_file.flush()
+                os.fsync(temp_pdf_file.fileno())
             temp_pdf_paths.append(temp_pdf_path)
 
-        # Combine all temp PDFs into one final PDF
         with open(output_pdf_path, "wb") as final_pdf_file:
-            writer = PyPDF2.PdfWriter()
+            merger = PdfMerger()
             for temp_pdf in temp_pdf_paths:
-                with open(temp_pdf, "rb") as temp_pdf_file:
-                    reader = PyPDF2.PdfReader(temp_pdf_file)
-                    writer.add_page(reader.pages[0])
-            writer.write(final_pdf_file)
+                merger.append(temp_pdf)
+            merger.write(final_pdf_file)
 
-        print(f"[convert_pdf_with_overlays]: Combined PDF saved as {output_pdf_path}")
-
-        # Clean up temporary files
         for temp_pdf in temp_pdf_paths:
             os.remove(temp_pdf)
-            print(f"Removed temporary file: {temp_pdf}")
+
+        print(f"[convert_pdf_with_overlays]: Combined PDF saved as {output_pdf_path}")
 
     def get_pdf_page_with_cues(
         self, markup_manager, page_number=0, image_size=(900, 700), selected_cue=None
