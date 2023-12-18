@@ -45,7 +45,7 @@ class MarkupManager:
                     # Annotations
                     for annotation_dict in page_data["annotations"]:
                         annotation = Annotation.from_dict(annotation_dict)
-                        page.add_annotations(annotation)
+                        page.add_annotation(annotation)
                     self.markup.add_page(page)
                 print("data successfully loaded: ", self.markup)
         except FileNotFoundError:

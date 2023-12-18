@@ -1,6 +1,7 @@
 from enum import Enum
 from cursor_mode import CursorMode
 from cue_types import CueType
+from annotation import Annotation
 import PySimpleGUI as sg
 
 
@@ -260,18 +261,21 @@ class Gui:
             elif event in ("-NEXT_PAGE-", ""):
                 self.handle_next_page_click()
             elif event.startswith("-IMAGE-"):
-                self.handle_page_click(self.window.user_bind_event.y)
+                self.handle_page_click(
+                    self.window.user_bind_event.x, self.window.user_bind_event.y
+                )
             elif event == "-LISTBOX-":
                 page_number = int(values["-LISTBOX-"][0].split(" ")[0])
                 self.render_pdf_page(page_number)
 
         self.window.close()
 
-    def handle_page_click(self, y_click):
+    def handle_page_click(self, x_click, y_click):
         if not self.current_page:
             return
 
         page = self.markup_manager.get_page(self.current_page)
+        print("Annotations before: ", page.get_annotations())
         if self.cursor_mode == CursorMode.SELECT:
             self.select_cue(self.current_page, y_click)
         elif self.cursor_mode == CursorMode.CUE:
@@ -280,11 +284,15 @@ class Gui:
         elif self.cursor_mode == CursorMode.ANNOTATE:
             if not self.selected_cue:
                 # Add a 'floating' annotation
-                pass
-            # add an note to a cue
-            return
+                input_annotation = sg.popup_get_text(
+                    "Enter the test for the annotation", "Annotation"
+                )
+                if input_annotation is not None:
+                    page.add_annotation(Annotation(x_click, y_click, input_annotation))
+            # add a note to a cue
         elif self.cursor_mode == CursorMode.OFFSET:
             return
+        print("Annotations after: ", page.get_annotations())
 
         # Rerender the page
         self.render_pdf_page(self.current_page)

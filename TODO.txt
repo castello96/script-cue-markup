@@ -23,7 +23,5 @@
 
 * Adding microphone cue notes, qLabCues, and annotations
 * Need to update tests
-* Get annotations, cue notes, and qlab cues rendered
-* allow user to add floating annotation
 * allow user to add note to selected cue
 * Add a way to show only Qlab or only microphone cues

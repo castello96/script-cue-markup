@@ -65,8 +65,8 @@ class Page:
             if removed and index != len(cue_list):
                 cue_list[index].number -= 1
 
-    def add_annotations(self, annotations_to_add):
-        self._annotations.append(annotations_to_add)
+    def add_annotation(self, annotation_to_add):
+        self._annotations.append(annotation_to_add)
 
     def get_microphone_cues(self):
         return self._cues[CueType.MICROPHONE.value]
