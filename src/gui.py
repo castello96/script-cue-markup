@@ -1,6 +1,6 @@
 from enum import Enum
-from markup_manager import MarkupManager
 from cursor_mode import CursorMode
+from cue_types import CueType
 import PySimpleGUI as sg
 
 
@@ -32,6 +32,7 @@ class Gui:
         self.current_page = 0
         self.cursor_mode = CursorMode.SELECT
         self.selected_cue = None
+        self.cue_type_to_add = CueType.MICROPHONE.value
 
         # Define the File menu
         self.menu_def = [
@@ -112,7 +113,7 @@ class Gui:
 
         self.col_page_view = [
             [
-                sg.Button("Prev", key="-PREV_PAGE-", size=(8, 2)),
+                sg.Button("Prev", key="-PREV_PAGE-", size=(4, 2)),
                 sg.Image(
                     key="-IMAGE-",
                     # size=(image_config["x"], image_config["y"]),
@@ -120,7 +121,61 @@ class Gui:
                     expand_y=True,
                     expand_x=True,
                 ),
-                sg.Button("Next", key="-NEXT_PAGE-", size=(8, 2)),
+                sg.Button("Next", key="-NEXT_PAGE-", size=(4, 2)),
+                sg.Column(
+                    [
+                        [
+                            sg.Frame(
+                                title="Add Cue Type",
+                                layout=[
+                                    [
+                                        sg.Radio(
+                                            "Microphone",
+                                            "RADIO1",
+                                            key="-RADIO_MIC-",
+                                            default=True,
+                                            enable_events=True,
+                                        )
+                                    ],
+                                    [
+                                        sg.Radio(
+                                            "Qlab",
+                                            "RADIO1",
+                                            key="-RADIO_QLAB-",
+                                            enable_events=True,
+                                        )
+                                    ],
+                                ],
+                                vertical_alignment="top",
+                            )
+                        ],
+                        [
+                            sg.Frame(
+                                title="View Cue Type",
+                                layout=[
+                                    [
+                                        sg.Checkbox(
+                                            "Microphone",
+                                            key="-CHECKBOX_MIC-",
+                                            default=True,
+                                            enable_events=True,
+                                        )
+                                    ],
+                                    [
+                                        sg.Checkbox(
+                                            "Qlab",
+                                            key="-CHECKBOX_QLAB-",
+                                            default=True,
+                                            enable_events=True,
+                                        )
+                                    ],
+                                ],
+                                vertical_alignment="top",
+                            )
+                        ],
+                    ],
+                    vertical_alignment="top",
+                ),
             ],
             [
                 sg.Text("", expand_x=True),  # Spacer
@@ -196,6 +251,10 @@ class Gui:
                 self.handle_update_cursor_mode(CursorMode.OFFSET)
             elif event == "-DELETE-":
                 self.handle_delete_key_press()
+            elif event == "-RADIO_MIC-":
+                self.cue_type_to_add = CueType.MICROPHONE.value
+            elif event == "-RADIO_QLAB-":
+                self.cue_type_to_add = CueType.QLAB.value
             elif event in ("-PREV_PAGE-", ""):
                 self.handle_previous_page_click()
             elif event in ("-NEXT_PAGE-", ""):
@@ -216,9 +275,13 @@ class Gui:
         if self.cursor_mode == CursorMode.SELECT:
             self.select_cue(self.current_page, y_click)
         elif self.cursor_mode == CursorMode.CUE:
-            page.create_new_cue_at_y_coordinate(y_click)
+            page.create_new_cue_at_y_coordinate(y_click, self.cue_type_to_add)
             self.render_pages_in_list_box()
         elif self.cursor_mode == CursorMode.ANNOTATE:
+            if not self.selected_cue:
+                # Add a 'floating' annotation
+                pass
+            # add an note to a cue
             return
         elif self.cursor_mode == CursorMode.OFFSET:
             return
@@ -335,14 +398,19 @@ class Gui:
                 f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
             )
 
+    # TODO: update this to write both mic cues and qlab cues or add them both
     def render_pages_in_list_box(self):
         listbox_data = []
         pages = self.markup_manager.get_all_pages()
         for i in range(self.pdf_manager.get_num_pages()):
             page_num_string = str(i)
-            if page_num_string in pages and len(pages[page_num_string].cues) > 0:
+            if page_num_string not in pages:
+                continue
+            num_microphone_cues = len(pages[page_num_string].get_microphone_cues())
+            num_q_lab_cues = len(pages[page_num_string].get_q_lab_cues())
+            if num_microphone_cues > 0 or num_q_lab_cues > 0:
                 listbox_data.append(
-                    f"{pages[page_num_string].number} ({len(pages[page_num_string].cues)} cues)"
+                    f"{pages[page_num_string].number} ({num_microphone_cues}, {num_q_lab_cues} cues)"
                 )
             else:
                 listbox_data.append(f"{page_num_string}")

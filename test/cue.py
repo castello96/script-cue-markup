@@ -13,10 +13,6 @@ class TestCue(unittest.TestCase):
     def test_from_dict(self):
         self.assertEqual(Cue.from_dict(self.test_dict), self.test_cue)
 
-    def test_update(self):
-        self.test_cue.update(20, 2)
-        self.assertEqual(self.test_cue, Cue(20, 2))
-
     def test_equality_comparison_different_types(self):
         self.assertFalse(self.test_cue == 10)
 

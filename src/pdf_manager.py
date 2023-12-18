@@ -67,10 +67,32 @@ class PdfManager:
     ):
         # Convert page to image
         page_image = self.convert_pdf_page_to_image(page_number, image_size)
-        # Draw cues on image
+        page = markup_manager.get_page(page_number)
+        print("[get_pdf_page_with_cues] page: ", page)
+        # Draw microphone cues on image
+        microphone_cues = page.get_microphone_cues()
         self.draw_cues_on_image(
-            markup_manager, page_image, page_number, image_size[0], selected_cue
+            page_image,
+            page_number,
+            image_size[0],
+            microphone_cues,
+            (127, 0, 0),
+            selected_cue,
         )
+        # Draw qlab cues on image
+        q_lab_cues = page.get_q_lab_cues()
+        self.draw_cues_on_image(
+            page_image,
+            page_number,
+            image_size[0],
+            q_lab_cues,
+            (0, 0, 127),
+            selected_cue,
+        )
+        # Draw floating annotations
+        annotations = page.get_annotations()
+        print("annotations: ", annotations)
+        self.draw_annotations_on_image(page_image, annotations)
         return page_image
 
     def convert_pdf_page_to_image(self, page_number, image_size):
@@ -88,29 +110,32 @@ class PdfManager:
         return page_image
 
     def draw_cues_on_image(
-        self, markup_manager, page_image, page_number, image_width, selected_cue
+        self, page_image, page_number, image_width, cues, fill_color, selected_cue
     ):
-        cues = markup_manager.get_page(page_number).cues
-
-        text_height = 15
+        cue_number_height = 15
+        cue_note_height = 9
+        selected_fill_color = (0, 127, 0)
         draw = ImageDraw.Draw(page_image)
-        font = ImageFont.truetype("./fonts/arial/arial.ttf", text_height)
+        cue_number_font = ImageFont.truetype(
+            "./fonts/arial/arial.ttf", cue_number_height
+        )
+        cue_note_font = ImageFont.truetype("./fonts/arial/arial.ttf", cue_note_height)
 
         for cue in cues:
             if selected_cue and selected_cue == cue:
-                fill = (0, 127, 0)
+                fill = selected_fill_color
             else:
-                fill = (127, 0, 0)
+                fill = fill_color
 
             text = f"{page_number}.{cue.number}"
-            text_width = draw.textlength(text, font=font)
+            text_width = draw.textlength(text, font=cue_number_font)
 
             # Calculate the width of the rectangle based on text width
             rect_width = text_width + 4  # Adding a little extra space around the text
 
             # Calculate X and Y coordinates to center the text in the rectangle
             rect_start_x = (rect_width - text_width) // 2
-            rect_start_y = cue.y_coordinate - text_height - 1
+            rect_start_y = cue.y_coordinate - cue_number_height - 1
 
             # Drawing the line
             draw.line(
@@ -121,7 +146,12 @@ class PdfManager:
 
             # Drawing the rectangle
             draw.rectangle(
-                (0, cue.y_coordinate - text_height - 2, rect_width, cue.y_coordinate),
+                (
+                    0,
+                    cue.y_coordinate - cue_number_height - 2,
+                    rect_width,
+                    cue.y_coordinate,
+                ),
                 outline=fill,
                 width=2,
             )
@@ -131,7 +161,31 @@ class PdfManager:
                 (rect_start_x, rect_start_y),
                 text,
                 fill=fill,
-                font=font,
+                font=cue_number_font,
+            )
+
+            # Draw the cue note
+            if cue.note:
+                draw.text(
+                    (rect_start_x, rect_start_y + 20),
+                    cue.note,
+                    fill=fill,
+                    font=cue_note_font,
+                )
+
+    def draw_annotations_on_image(self, page_image, annotations):
+        annotation_height = 10
+        annotation_font = ImageFont.truetype(
+            "./fonts/arial/arial.ttf", annotation_height
+        )
+        draw = ImageDraw.Draw(page_image)
+
+        for annotation in annotations:
+            draw.text(
+                (annotation.x_coordinate, annotation.y_coordinate),
+                annotation.note,
+                fill=(0, 0, 0),
+                font=annotation_font,
             )
 
     def convert_image_to_data(self, page_image, file_type: FileType):
