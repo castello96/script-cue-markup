@@ -275,24 +275,26 @@ class Gui:
             return
 
         page = self.markup_manager.get_page(self.current_page)
-        print("Annotations before: ", page.get_annotations())
         if self.cursor_mode == CursorMode.SELECT:
             self.select_cue(self.current_page, y_click)
         elif self.cursor_mode == CursorMode.CUE:
             page.create_new_cue_at_y_coordinate(y_click, self.cue_type_to_add)
             self.render_pages_in_list_box()
         elif self.cursor_mode == CursorMode.ANNOTATE:
+            input_text = sg.popup_get_text(
+                "Enter the text for the annotation", "Annotation"
+            )
+            if not input_text:
+                return
+
             if not self.selected_cue:
                 # Add a 'floating' annotation
-                input_annotation = sg.popup_get_text(
-                    "Enter the test for the annotation", "Annotation"
-                )
-                if input_annotation is not None:
-                    page.add_annotation(Annotation(x_click, y_click, input_annotation))
-            # add a note to a cue
+                page.add_annotation(Annotation(x_click, y_click, input_text))
+            else:
+                # Add note to a selected cue
+                self.selected_cue.note = input_text
         elif self.cursor_mode == CursorMode.OFFSET:
             return
-        print("Annotations after: ", page.get_annotations())
 
         # Rerender the page
         self.render_pdf_page(self.current_page)
