@@ -18,9 +18,4 @@
 * Capability to select a cue and move its y-coordinate
 * Move application config to a json file and read into an object
 * Allow user to choose color preferences
-
-
-
-* Adding microphone cue notes, qLabCues, and annotations
 * Need to update tests
-* Add a way to show only Qlab or only microphone cues
