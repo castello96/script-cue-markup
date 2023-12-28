@@ -34,6 +34,7 @@ class Gui:
         self.cursor_mode = CursorMode.SELECT
         self.selected_cue = None
         self.cue_type_to_add = CueType.MICROPHONE.value
+        self.view = set([CueType.MICROPHONE.value, CueType.QLAB.value, "annotation"])
 
         # Define the File menu
         self.menu_def = [
@@ -152,21 +153,30 @@ class Gui:
                         ],
                         [
                             sg.Frame(
-                                title="View Cue Type",
+                                title="View",
                                 layout=[
                                     [
                                         sg.Checkbox(
-                                            "Microphone",
-                                            key="-CHECKBOX_MIC-",
-                                            default=True,
+                                            "Microphone Cues",
+                                            key="-VIEW_CHECKBOX_MIC-",
+                                            default=CueType.MICROPHONE.value
+                                            in self.view,
                                             enable_events=True,
                                         )
                                     ],
                                     [
                                         sg.Checkbox(
-                                            "Qlab",
-                                            key="-CHECKBOX_QLAB-",
-                                            default=True,
+                                            "Qlab Cues",
+                                            key="-VIEW_CHECKBOX_QLAB-",
+                                            default=CueType.QLAB.value in self.view,
+                                            enable_events=True,
+                                        )
+                                    ],
+                                    [
+                                        sg.Checkbox(
+                                            "Annotations",
+                                            key="-VIEW_CHECKBOX_ANNOTATION-",
+                                            default="annotation" in self.view,
                                             enable_events=True,
                                         )
                                     ],
@@ -256,6 +266,12 @@ class Gui:
                 self.cue_type_to_add = CueType.MICROPHONE.value
             elif event == "-RADIO_QLAB-":
                 self.cue_type_to_add = CueType.QLAB.value
+            elif event.startswith("-VIEW_CHECKBOX_"):
+                self.handle_view_checkbox_changed(
+                    values["-VIEW_CHECKBOX_MIC-"],
+                    values["-VIEW_CHECKBOX_QLAB-"],
+                    values["-VIEW_CHECKBOX_ANNOTATION-"],
+                )
             elif event in ("-PREV_PAGE-", ""):
                 self.handle_previous_page_click()
             elif event in ("-NEXT_PAGE-", ""):
@@ -394,6 +410,7 @@ class Gui:
     def render_pdf_page(self, page_number):
         page_image = self.pdf_manager.get_pdf_page_with_cues(
             self.markup_manager,
+            self.view,
             page_number,
             (image_config["x"], image_config["y"]),
             self.selected_cue,
@@ -425,6 +442,29 @@ class Gui:
             else:
                 listbox_data.append(f"{page_num_string}")
         self.window["-LISTBOX-"].update(values=listbox_data)
+
+    def handle_view_checkbox_changed(
+        self, is_microphone_checked, is_qlab_checked, is_annotation_checked
+    ):
+        # Handle Microphone Checkbox
+        if is_microphone_checked:
+            self.view.add(CueType.MICROPHONE.value)
+        else:
+            self.view.discard(CueType.MICROPHONE.value)
+
+        # Handle Qlab Checkbox
+        if is_qlab_checked:
+            self.view.add(CueType.QLAB.value)
+        else:
+            self.view.discard(CueType.QLAB.value)
+
+        # Handle Annotation Checkbox
+        if is_annotation_checked:
+            self.view.add("annotation")
+        else:
+            self.view.discard("annotation")
+
+        self.render_pdf_page(self.current_page)
 
     # Fool Proof Design
     def update_button_styles(self):

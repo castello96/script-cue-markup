@@ -4,6 +4,7 @@ from pdf2image import convert_from_path
 from PIL import Image, ImageDraw, ImageFont
 import io
 from pypdf import PdfMerger
+from cue_types import CueType
 
 from gui import FileType
 
@@ -63,36 +64,48 @@ class PdfManager:
         print(f"[convert_pdf_with_overlays]: Combined PDF saved as {output_pdf_path}")
 
     def get_pdf_page_with_cues(
-        self, markup_manager, page_number=0, image_size=(900, 700), selected_cue=None
+        self,
+        markup_manager,
+        view,
+        page_number=0,
+        image_size=(900, 700),
+        selected_cue=None,
     ):
         # Convert page to image
         page_image = self.convert_pdf_page_to_image(page_number, image_size)
         page = markup_manager.get_page(page_number)
-        print("[get_pdf_page_with_cues] page: ", page)
-        # Draw microphone cues on image
-        microphone_cues = page.get_microphone_cues()
-        self.draw_cues_on_image(
-            page_image,
-            page_number,
-            image_size[0],
-            microphone_cues,
-            (127, 0, 0),
-            selected_cue,
-        )
-        # Draw qlab cues on image
-        q_lab_cues = page.get_q_lab_cues()
-        self.draw_cues_on_image(
-            page_image,
-            page_number,
-            image_size[0],
-            q_lab_cues,
-            (0, 0, 127),
-            selected_cue,
-        )
-        # Draw floating annotations
-        annotations = page.get_annotations()
-        print("annotations: ", annotations)
-        self.draw_annotations_on_image(page_image, annotations)
+
+        if CueType.MICROPHONE.value in view:
+            # Draw microphone cues on image
+            microphone_cues = page.get_microphone_cues()
+            self.draw_cues_on_image(
+                page_image,
+                page_number,
+                image_size[0],
+                microphone_cues,
+                (127, 0, 0),
+                selected_cue,
+            )
+
+        if CueType.QLAB.value in view:
+            # Draw qlab cues on image
+            q_lab_cues = page.get_q_lab_cues()
+            self.draw_cues_on_image(
+                page_image,
+                page_number,
+                image_size[0],
+                q_lab_cues,
+                (0, 0, 127),
+                selected_cue,
+            )
+
+        if (
+            "annotation" in view
+        ):  # TODO: Dont use a string for "annotation." Use const variable
+            # Draw floating annotations
+            annotations = page.get_annotations()
+            self.draw_annotations_on_image(page_image, annotations)
+
         return page_image
 
     def convert_pdf_page_to_image(self, page_number, image_size):
