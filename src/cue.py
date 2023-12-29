@@ -1,3 +1,4 @@
+from enum import Enum
 from cue_types import CueType
 
 
@@ -38,6 +39,9 @@ class Cue:
             and self.number == other.number
             and self.note == other.note
         )
+
+    def update_y_coordinate(self, direction, amount):
+        self.y_coordinate += amount * direction
 
     def __repr__(self):
         return f"Cue(type={self.type}, y_coordinate={self.y_coordinate}, number={self.number}, note={self.note})"

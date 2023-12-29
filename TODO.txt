@@ -1,4 +1,5 @@
 * Need to update tests
+* select and delete annotations
 * Make listbox scroll
 * Fool proof design
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
@@ -8,14 +9,13 @@
     * cmd + s
     * cmd + z
     * cmd + shift + z
-* * arrow left and right keys for page navigation
-* * delete key for deletions
+    * arrow left and right keys for page navigation
+    * delete key for deletions
 * Implement progress bar for export
 * Possibly add a "go to page" text box
 * Possibly add a got to start / end button
 * two above may not be necessary with the bookmark window
 * Line up the "page x of x" under the middle column
-* Capability to select a cue and move its y-coordinate
 * Move application config to a json file and read into an object
 * Add a horizontal line that follows the mouse in markup mode
 * Allow user to choose color preferences

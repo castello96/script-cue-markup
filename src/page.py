@@ -19,6 +19,7 @@ class Page:
     def create_new_cue_at_y_coordinate(self, cue_to_add_y_coordinate, cue_type):
         # TODO: Add logic to prevent adding a cue on top of a preexisting one
         cue_list = self._cues[cue_type]
+        new_cue = None
         # Find the index where the new cue should be inserted
         insert_index = None
         for index, current_cue in enumerate(cue_list):
@@ -28,15 +29,17 @@ class Page:
 
         # Insert the new cue at the found position, or append if not found
         if insert_index is not None:
-            cue_list.insert(
-                insert_index, Cue(cue_type, cue_to_add_y_coordinate, insert_index + 1)
-            )
+            new_cue = Cue(cue_type, cue_to_add_y_coordinate, insert_index + 1)
+            cue_list.insert(insert_index, new_cue)
             # Update cue numbers for subsequent cues
             for i in range(insert_index + 1, len(cue_list)):
                 cue_list[i].number = i + 1
         else:
             new_cue_number = len(cue_list) + 1
-            cue_list.append(Cue(cue_type, cue_to_add_y_coordinate, new_cue_number))
+            new_cue = Cue(cue_type, cue_to_add_y_coordinate, new_cue_number)
+            cue_list.append(new_cue)
+
+        return new_cue
 
     def add_existing_cue(self, cue_to_add):
         cue_list = self._cues[cue_to_add.type]
@@ -65,6 +68,19 @@ class Page:
             if removed and index != len(cue_list):
                 cue_list[index].number -= 1
 
+    def move_cue(self, cue_to_move, direction, distance=1):
+        # Remove the current cue
+        self.remove_cue(cue_to_move)
+
+        new_y_coordinate = cue_to_move.y_coordinate + distance * direction
+
+        # Insert new cue at new y coordinate. This takes care of renumbering
+        moved_cue = self.create_new_cue_at_y_coordinate(
+            new_y_coordinate, cue_to_move.type
+        )
+
+        return moved_cue
+
     def add_annotation(self, annotation_to_add):
         self._annotations.append(annotation_to_add)
 
@@ -75,7 +91,6 @@ class Page:
         return self._cues[CueType.QLAB.value]
 
     def get_annotations(self):
-        print("[get_annotations] annotations: ", self._annotations)
         return self._annotations
 
     def __eq__(self, other) -> bool:

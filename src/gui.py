@@ -1,6 +1,8 @@
 from enum import Enum
 from cursor_mode import CursorMode
 from cue_types import CueType
+from arrow_keys import ArrowKey
+from y_directions import YDirection
 from annotation import Annotation
 import PySimpleGUI as sg
 
@@ -273,10 +275,12 @@ class Gui:
                     values["-VIEW_CHECKBOX_QLAB-"],
                     values["-VIEW_CHECKBOX_ANNOTATION-"],
                 )
-            elif event in ("-PREV_PAGE-", ""):
+            elif event in ("-PREV_PAGE-", ArrowKey.LEFT.value):
                 self.handle_previous_page_click()
-            elif event in ("-NEXT_PAGE-", ""):
+            elif event in ("-NEXT_PAGE-", ArrowKey.RIGHT.value):
                 self.handle_next_page_click()
+            elif event in [key.value for key in ArrowKey]:
+                self.handle_arrow_key_pressed(event)
             elif event.startswith("-IMAGE-"):
                 self.handle_page_click(
                     self.window.user_bind_event.x, self.window.user_bind_event.y
@@ -476,6 +480,24 @@ class Gui:
             self.view.add("annotation")
         else:
             self.view.discard("annotation")
+
+        self.render_pdf_page(self.current_page)
+
+    def handle_arrow_key_pressed(self, direction):
+        current_page = self.markup_manager.get_page(self.current_page)
+
+        if direction == ArrowKey.LEFT.value:
+            pass
+        elif direction == ArrowKey.UP.value and self.selected_cue:
+            self.selected_cue = current_page.move_cue(
+                self.selected_cue, YDirection.UP.value
+            )
+        elif direction == ArrowKey.RIGHT.value:
+            pass
+        elif direction == ArrowKey.DOWN.value and self.selected_cue:
+            self.selected_cue = current_page.move_cue(
+                self.selected_cue, YDirection.DOWN.value
+            )
 
         self.render_pdf_page(self.current_page)
 
