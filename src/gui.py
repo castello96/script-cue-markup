@@ -35,6 +35,7 @@ class Gui:
         self.selected_cue = None
         self.cue_type_to_add = CueType.MICROPHONE.value
         self.view = set([CueType.MICROPHONE.value, CueType.QLAB.value, "annotation"])
+        self.current_file_path = None
 
         # Define the File menu
         self.menu_def = [
@@ -349,8 +350,11 @@ class Gui:
             print("File loading cancelled.")
 
     def handle_save_file(self):
-        # TODO: Use this if file has already been saved with a name
-        pass
+        # If it has not been saved yet, call the save as dialogue
+        if not self.current_file_path:
+            self.handle_save_file_as()
+            return
+        self.markup_manager.save_data(self.current_file_path)
 
     def handle_save_file_as(self):
         file_path = sg.popup_get_file(
@@ -360,6 +364,11 @@ class Gui:
             no_window=True,
             default_extension=".json",
         )
+
+        if not file_path:
+            return
+
+        self.current_file_path = file_path
         self.markup_manager.save_data(file_path)
         print("file saved! ")
 
