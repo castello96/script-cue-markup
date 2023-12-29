@@ -1,21 +1,18 @@
-* Add a horizontal line that follows the mouse in markup mode
-* Add annotations to cues
-* Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
+* Implement save
+* Need to update tests
+* Make listbox scroll
 * Fool proof design
-* Allow Qlab cues to be added
+* Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
+* Undo button
+* Redo Button
 * Implement key shortcuts
 * * arrow left and right keys for page navigation
 * * delete key for deletions
-* Implement save
 * Implement progress bar for export
 * Possibly add a "go to page" text box
 * Possibly add a got to start / end button
 * two above may not be necessary with the bookmark window
-* Undo button
-* Redo Button
-* Fix crashing when hitting next on last page
-* Make listbox scroll
 * Capability to select a cue and move its y-coordinate
 * Move application config to a json file and read into an object
+* Add a horizontal line that follows the mouse in markup mode
 * Allow user to choose color preferences
-* Need to update tests

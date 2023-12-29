@@ -71,7 +71,7 @@ class PdfManager:
         image_size=(900, 700),
         selected_cue=None,
     ):
-        # Convert page to image
+        # Convert page to image #TODO: This could return none
         page_image = self.convert_pdf_page_to_image(page_number, image_size)
         page = markup_manager.get_page(page_number)
 

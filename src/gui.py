@@ -408,6 +408,9 @@ class Gui:
         self.render_pdf_page(self.current_page - 1)
 
     def render_pdf_page(self, page_number):
+        if page_number < 0 or page_number >= self.pdf_manager.get_num_pages():
+            return
+
         page_image = self.pdf_manager.get_pdf_page_with_cues(
             self.markup_manager,
             self.view,
@@ -422,7 +425,7 @@ class Gui:
             self.current_page = page_number
             self.window["-IMAGE-"].update(data=image_data)
             self.window["-FILE_NUM-"].update(
-                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()}"
+                f"Page {self.current_page} of {self.pdf_manager.get_num_pages()-1}"
             )
 
     # TODO: update this to write both mic cues and qlab cues or add them both
