@@ -1,6 +1,5 @@
 * Need to update tests
 * select and delete annotations
-* Make listbox scroll
 * Fool proof design
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
 * Undo button
@@ -19,3 +18,7 @@
 * Move application config to a json file and read into an object
 * Add a horizontal line that follows the mouse in markup mode
 * Allow user to choose color preferences
+
+
+EDGE CASES
+* What happens when we have begun marking up a pdf and then load in a markup file

@@ -104,7 +104,7 @@ class Gui:
             [
                 sg.Listbox(
                     values="",
-                    size=(30, 80),
+                    size=(30, 55),  # TODO: Make this y size dynamic
                     key="-LISTBOX-",
                     enable_events=True,
                 )
@@ -350,6 +350,7 @@ class Gui:
             self.window["-FILENAME-"].update(pdf_file_path)
             self.pdf_manager.open_pdf(pdf_file_path)
             self.render_pdf_page(self.current_page)
+            self.render_pages_in_list_box()
         else:
             print("File loading cancelled.")
 
@@ -442,13 +443,17 @@ class Gui:
                 f"Page {self.current_page} of {self.pdf_manager.get_num_pages()-1}"
             )
 
-    # TODO: update this to write both mic cues and qlab cues or add them both
     def render_pages_in_list_box(self):
         listbox_data = []
         pages = self.markup_manager.get_all_pages()
+        print(
+            "[render_pages_in_list_box] num pages: ",
+            self.pdf_manager.get_num_pages(),
+        )
         for i in range(self.pdf_manager.get_num_pages()):
             page_num_string = str(i)
             if page_num_string not in pages:
+                listbox_data.append(f"{page_num_string}")
                 continue
             num_microphone_cues = len(pages[page_num_string].get_microphone_cues())
             num_q_lab_cues = len(pages[page_num_string].get_q_lab_cues())
@@ -458,6 +463,7 @@ class Gui:
                 )
             else:
                 listbox_data.append(f"{page_num_string}")
+        print("[render_pages_in_list_box] listbox data: ", listbox_data)
         self.window["-LISTBOX-"].update(values=listbox_data)
 
     def handle_view_checkbox_changed(
