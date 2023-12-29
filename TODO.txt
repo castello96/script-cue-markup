@@ -1,4 +1,3 @@
-* Show save confirmation
 * Need to update tests
 * Make listbox scroll
 * Fool proof design

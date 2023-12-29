@@ -355,6 +355,7 @@ class Gui:
             self.handle_save_file_as()
             return
         self.markup_manager.save_data(self.current_file_path)
+        sg.popup("File has been saved successfully.", title="Saved")
 
     def handle_save_file_as(self):
         file_path = sg.popup_get_file(
@@ -370,7 +371,7 @@ class Gui:
 
         self.current_file_path = file_path
         self.markup_manager.save_data(file_path)
-        print("file saved! ")
+        sg.popup("File has been saved successfully.", title="Saved")
 
     def handle_export_pdf_with_markup(self):
         file_path = sg.popup_get_file(
