@@ -260,7 +260,7 @@ class Gui:
             elif event in ("-ADD_CUE-", "c"):
                 self.handle_update_cursor_mode(CursorMode.CUE)
             elif event in ("-ANNOTATE-", "a"):
-                self.handle_update_cursor_mode(CursorMode.ANNOTATE)
+                self.handle_annotate_clicked()
             elif event in ("-OFFSET-", "o"):
                 self.handle_update_cursor_mode(CursorMode.OFFSET)
             elif event == "-DELETE-":
@@ -308,17 +308,26 @@ class Gui:
             if not input_text:
                 return
 
-            if not self.selected_cue:
-                # Add a 'floating' annotation
-                page.add_annotation(Annotation(x_click, y_click, input_text))
-            else:
-                # Add note to a selected cue
-                self.selected_cue.note = input_text
+            page.add_annotation(Annotation(x_click, y_click, input_text))
         elif self.cursor_mode == CursorMode.OFFSET:
             return
 
         # Rerender the page
         self.render_pdf_page(self.current_page)
+
+    def handle_annotate_clicked(self):
+        self.handle_update_cursor_mode(CursorMode.ANNOTATE)
+        if self.selected_cue:
+            input_text = sg.popup_get_text(
+                "Enter the text for the cue annotation", "Annotation"
+            )
+            if not input_text:
+                return
+
+            self.selected_cue.note = input_text
+
+            # Rerender the page
+            self.render_pdf_page(self.current_page)
 
     def handle_load_markup_file(self):
         # TODO: file_types is not filtering to JSON
@@ -446,10 +455,6 @@ class Gui:
     def render_pages_in_list_box(self):
         listbox_data = []
         pages = self.markup_manager.get_all_pages()
-        print(
-            "[render_pages_in_list_box] num pages: ",
-            self.pdf_manager.get_num_pages(),
-        )
         for i in range(self.pdf_manager.get_num_pages()):
             page_num_string = str(i)
             if page_num_string not in pages:
@@ -463,7 +468,6 @@ class Gui:
                 )
             else:
                 listbox_data.append(f"{page_num_string}")
-        print("[render_pages_in_list_box] listbox data: ", listbox_data)
         self.window["-LISTBOX-"].update(values=listbox_data)
 
     def handle_view_checkbox_changed(
