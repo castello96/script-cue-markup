@@ -1,6 +1,10 @@
 * Need to update tests
-* select and delete annotations
 * Fool proof design
+    * Dont show select, add cue, or annotate until there is a pdf
+    * dont show delete until a cue is selected
+    * dont show prev and next until there is a pdf
+    * dont show cue add cue type frame until there is a pdf
+    * dont show view frame until there are cues present / a markup loaded
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
 * Undo button
 * Redo Button

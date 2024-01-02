@@ -70,12 +70,6 @@ class Gui:
                     pad=button_padding,
                     button_color=self.button_normal_color,
                 ),
-                sg.Button(
-                    "Offset",
-                    key="-OFFSET-",
-                    pad=button_padding,
-                    button_color=self.button_normal_color,
-                ),
             ],
         ]
 
@@ -276,8 +270,6 @@ class Gui:
                 self.handle_update_cursor_mode(CursorMode.CUE)
             elif event in ("-ANNOTATE-", "a"):
                 self.handle_annotate_clicked()
-            elif event in ("-OFFSET-", "o"):
-                self.handle_update_cursor_mode(CursorMode.OFFSET)
             elif event == "-DELETE-":
                 self.handle_delete_key_press()
             elif event == "-RADIO_MIC-":
@@ -324,8 +316,6 @@ class Gui:
                 return
 
             page.add_annotation(Annotation(x_click, y_click, input_text))
-        elif self.cursor_mode == CursorMode.OFFSET:
-            return
 
         # Rerender the page
         self.render_pdf_page(self.current_page)
@@ -656,7 +646,6 @@ class Gui:
             CursorMode.SELECT: "-SELECT-",
             CursorMode.CUE: "-ADD_CUE-",
             CursorMode.ANNOTATE: "-ANNOTATE-",
-            CursorMode.OFFSET: "-OFFSET-",
         }
 
         for mode, key in modes.items():
