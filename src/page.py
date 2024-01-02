@@ -4,6 +4,7 @@ try:
 except ImportError:
     from cue import Cue  # When run as a standalone script
     from cue_types import CueType
+    from annotation import Annotation
 
 
 class Page:
@@ -80,6 +81,15 @@ class Page:
         )
 
         return moved_cue
+
+    def get_annotation_by_attributes(self, note, x_coordinate, y_coordinate):
+        desired_annotation = Annotation(x_coordinate, y_coordinate, note)
+        for annotation in self._annotations:
+            if annotation == desired_annotation:
+                return annotation
+
+    def delete_annotation(self, annotation_to_delete):
+        self._annotations.remove(annotation_to_delete)
 
     def add_annotation(self, annotation_to_add):
         self._annotations.append(annotation_to_add)

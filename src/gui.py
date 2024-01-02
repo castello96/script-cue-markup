@@ -12,16 +12,17 @@ class FileType(Enum):
     PDF = "PDF"
 
 
-window_config = {
+main_window_config = {
     "x": 1300,
     "y": 825,
     "left_col_screen_percentage": 0.25,
     "right_col_screen_percentage": 0.75,
 }
 image_config = {
-    "x": window_config["x"] * window_config["right_col_screen_percentage"],
-    "y": window_config["y"] * 0.95,
+    "x": main_window_config["x"] * main_window_config["right_col_screen_percentage"],
+    "y": main_window_config["y"] * 0.95,
 }
+annotation_window_config = {"x": 800, "y": 400}
 # image_config = {
 #     "x": 900,
 #     "y": 700,
@@ -41,7 +42,8 @@ class Gui:
 
         # Define the File menu
         self.menu_def = [
-            ["&File", ["&Load PDF", "&Load Markup", "&Save As", "&Save", "&Export"]]
+            ["&File", ["&Load PDF", "&Load Markup", "&Save As", "&Save", "&Export"]],
+            ["&Edit", ["&Undo", "&Redo", "&Annotations"]],
         ]
 
         # Define button options
@@ -204,8 +206,8 @@ class Gui:
                 sg.Col(
                     self.col_pages_list,
                     size=(
-                        window_config["x"]
-                        * window_config["left_col_screen_percentage"],
+                        main_window_config["x"]
+                        * main_window_config["left_col_screen_percentage"],
                         None,
                     ),
                     expand_y=True,
@@ -213,8 +215,8 @@ class Gui:
                 sg.Col(
                     self.col_page_view,
                     size=(
-                        window_config["x"]
-                        * window_config["right_col_screen_percentage"],
+                        main_window_config["x"]
+                        * main_window_config["right_col_screen_percentage"],
                         None,
                     ),
                     expand_y=True,
@@ -228,13 +230,24 @@ class Gui:
             self.layout,
             return_keyboard_events=True,
             enable_close_attempted_event=True,
-            size=(window_config["x"], window_config["y"]),
+            size=(main_window_config["x"], main_window_config["y"]),
             finalize=True,
         )
 
         self.window.bind("<Motion>", "Motion")
 
     def launch_gui(self):
+        ### DEBUG
+        test_pdf_file_path = "/Users/nicholascastello/Documents/Theatre/Librettos/Holy Rollers Libretto.pdf"
+        test_markup_file_path = (
+            "/Users/nicholascastello/Documents/Theatre/Librettos/session_data.json"
+        )
+        self.window["-FILENAME-"].update(test_pdf_file_path)
+        self.pdf_manager.open_pdf(test_pdf_file_path)
+        self.render_pdf_page(self.current_page)
+        self.markup_manager.load_data(test_markup_file_path)
+        self.render_pages_in_list_box()
+
         while True:
             event, values = self.window.read()
             if event == "Motion":
@@ -255,6 +268,8 @@ class Gui:
                 self.handle_save_file()
             elif event == "Export":
                 self.handle_export_pdf_with_markup()
+            elif event == "Annotations":
+                self.handle_open_annotation_editor()
             elif event in ("-SELECT-", "s"):
                 self.handle_update_cursor_mode(CursorMode.SELECT)
             elif event in ("-ADD_CUE-", "c"):
@@ -510,6 +525,129 @@ class Gui:
             )
 
         self.render_pdf_page(self.current_page)
+
+    def handle_open_annotation_editor(self):
+        page = self.markup_manager.get_page(self.current_page)
+        annotations = page.get_annotations()
+        table_data = []
+        for annotation in annotations:
+            row = [annotation.note, annotation.x_coordinate, annotation.y_coordinate]
+            table_data.append(row)
+        self.run_annotation_editor(table_data, page)
+
+    def run_annotation_editor(self, annotations, page):
+        layout = [
+            [
+                sg.Table(
+                    values=annotations,
+                    headings=["Text", "X-coordinate", "Y-coordinate"],
+                    display_row_numbers=True,
+                    enable_events=True,
+                    key="-TABLE-",
+                    expand_x=True,
+                    expand_y=True,
+                )
+            ],
+            [
+                sg.Button("Add"),
+                sg.Button("Edit"),
+                sg.Button("Delete"),
+                sg.Button("Close"),
+            ],
+        ]
+
+        window = sg.Window(
+            "Edit Annotations",
+            layout,
+            size=(annotation_window_config["x"], annotation_window_config["y"]),
+        )
+
+        while True:
+            event, values = window.read()
+            if event == sg.WIN_CLOSED or event == "Close":
+                break
+            elif event == "Add":
+                new_annotation_data = self.edit_annotation_popup(["", "", ""])
+                if new_annotation_data:
+                    annotations.append(new_annotation_data)
+                    window["-TABLE-"].update(values=annotations)
+                    annotation = Annotation(
+                        note=new_annotation_data[0],
+                        x_coordinate=new_annotation_data[1],
+                        y_coordinate=new_annotation_data[2],
+                    )
+                    page.add_annotation(annotation)
+                    self.render_pdf_page(self.current_page)
+            elif event == "Edit":
+                selected_row = values["-TABLE-"][0]
+                annotation = page.get_annotation_by_attributes(
+                    annotations[selected_row][0],
+                    annotations[selected_row][1],
+                    annotations[selected_row][2],
+                )
+                updated_data = self.edit_annotation_popup(annotations[selected_row])
+                if updated_data:  # If changes were made
+                    annotations[selected_row] = updated_data
+                    window["-TABLE-"].update(values=annotations)
+                    annotation.update(
+                        note=updated_data[0],
+                        x_coordinate=updated_data[1],
+                        y_coordinate=updated_data[2],
+                    )
+                    self.render_pdf_page(self.current_page)
+            elif event == "Delete":
+                selected_row = values["-TABLE-"][0]
+                annotation = page.get_annotation_by_attributes(
+                    annotations[selected_row][0],
+                    annotations[selected_row][1],
+                    annotations[selected_row][2],
+                )
+                print(f"Attempting to delete {selected_row} from {annotations}")
+                del annotations[selected_row]
+                window["-TABLE-"].update(values=annotations)
+                page.delete_annotation(annotation)
+                self.render_pdf_page(self.current_page)
+
+        window.close()
+
+    def edit_annotation_popup(self, annotation_data):
+        column_labels = [
+            [sg.Text("Note")],
+            [sg.Text("X-coordinate")],
+            [sg.Text("Y-coordinate")],
+        ]
+
+        column_inputs = [
+            [sg.InputText(annotation_data[0], key="note", size=(20, 1))],
+            [sg.InputText(annotation_data[1], key="x_pos", size=(20, 1))],
+            [sg.InputText(annotation_data[2], key="y_pos", size=(20, 1))],
+        ]
+
+        layout = [
+            [
+                sg.Column(column_labels, vertical_alignment="top"),
+                sg.Column(column_inputs, vertical_alignment="top"),
+            ],
+            [sg.Button("Save"), sg.Button("Cancel")],
+            [sg.Text("", size=(40, 1), key="error_msg", text_color="red")],
+        ]
+
+        window = sg.Window("Edit Annotation", layout)
+
+        while True:
+            event, values = window.read()
+            if event in (sg.WIN_CLOSED, "Cancel"):
+                break
+            elif event == "Save":
+                # Validate x and y positions are integers
+                x_pos, y_pos = values["x_pos"], values["y_pos"]
+                # TODO: Also validate x and y are within page size bounds
+                if not (x_pos.isdigit() and y_pos.isdigit()):
+                    window["error_msg"].update("X and Y positions must be integers.")
+                    continue
+                # Return updated values
+                window.close()
+                return [values["note"], int(x_pos), int(y_pos)]
 
     # Fool Proof Design
     def update_button_styles(self):

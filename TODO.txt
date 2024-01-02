@@ -16,6 +16,12 @@
 * Add a horizontal line that follows the mouse in markup mode
 * Allow user to choose color preferences
 
+VALIDATION
+* validate edit annotation coordinates are within page bounds
+
+NICE TO HAVE
+* Highlight the annotation on the page when selected from the annotation editor
 
 EDGE CASES
 * What happens when we have begun marking up a pdf and then load in a markup file
+* What happens when you load a markup with more pages than the currently open PDF?
