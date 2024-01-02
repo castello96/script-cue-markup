@@ -411,7 +411,6 @@ class Gui:
     def handle_delete_key_press(self):
         # Check if there is a selected cue and if so, delete it
         if self.selected_cue:
-            print("Deleting selected cue: ", self.selected_cue)
             self.markup_manager.delete_cue(self.current_page, self.selected_cue)
             self.render_pdf_page(self.current_page)
             self.render_pages_in_list_box()
@@ -592,7 +591,6 @@ class Gui:
                     annotations[selected_row][1],
                     annotations[selected_row][2],
                 )
-                print(f"Attempting to delete {selected_row} from {annotations}")
                 del annotations[selected_row]
                 window["-TABLE-"].update(values=annotations)
                 page.delete_annotation(annotation)

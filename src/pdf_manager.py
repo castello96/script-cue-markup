@@ -23,7 +23,6 @@ class PdfManager:
                 # Do something with the reader object, like counting pages
                 num_pages = len(self.pdf.pages)
                 info = self.pdf.metadata
-                print(f"info: {info}, num_pages: {num_pages}")
                 return self.pdf, num_pages
         except FileNotFoundError:
             print(f"The file {file_path} was not found.")
