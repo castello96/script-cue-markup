@@ -1,3 +1,4 @@
+NEED BEFORE BETA RELEASE
 * Need to update tests
 * Fool proof design
     * Dont show select, add cue, or annotate until there is a pdf
@@ -6,6 +7,11 @@
     * dont show cue add cue type frame until there is a pdf
     * dont show view frame until there are cues present / a markup loaded
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
+
+VALIDATION
+* validate edit annotation coordinates are within page bounds
+
+NICE TO HAVE
 * Undo button
 * Redo Button
 * Implement key shortcuts
@@ -19,11 +25,6 @@
 * Move application config to a json file and read into an object
 * Add a horizontal line that follows the mouse in markup mode
 * Allow user to choose color preferences
-
-VALIDATION
-* validate edit annotation coordinates are within page bounds
-
-NICE TO HAVE
 * Highlight the annotation on the page when selected from the annotation editor
 
 EDGE CASES
