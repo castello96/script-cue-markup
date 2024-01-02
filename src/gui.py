@@ -6,6 +6,8 @@ from y_directions import YDirection
 from annotation import Annotation
 import PySimpleGUI as sg
 
+DEBUG = True
+
 
 class FileType(Enum):
     PNG = "PNG"
@@ -23,6 +25,10 @@ image_config = {
     "y": main_window_config["y"] * 0.95,
 }
 annotation_window_config = {"x": 800, "y": 400}
+color_config = {
+    "disabled_text_color": "#A0A0A0",
+    "disabled_background_color": "#D3D3D3",
+}
 # image_config = {
 #     "x": 900,
 #     "y": 700,
@@ -81,7 +87,11 @@ class Gui:
                     pad=button_padding,
                     expand_x=True,
                     expand_y=True,
-                    button_color=("white", "red"),
+                    button_color=(
+                        color_config["disabled_text_color"],
+                        color_config["disabled_background_color"],
+                    ),
+                    disabled=True,
                 )
             ],
         ]
@@ -105,11 +115,7 @@ class Gui:
                     enable_events=True,
                 )
             ],
-            [
-                sg.Text(
-                    "Select a page. Use scrollwheel or arrow keys on keyboard to scroll through files one by one."
-                )
-            ],
+            [sg.Text("Select a page")],
         ]
 
         self.col_page_view = [
@@ -231,16 +237,14 @@ class Gui:
         self.window.bind("<Motion>", "Motion")
 
     def launch_gui(self):
-        ### DEBUG
-        test_pdf_file_path = "/Users/nicholascastello/Documents/Theatre/Librettos/Holy Rollers Libretto.pdf"
-        test_markup_file_path = (
-            "/Users/nicholascastello/Documents/Theatre/Librettos/session_data.json"
-        )
-        self.window["-FILENAME-"].update(test_pdf_file_path)
-        self.pdf_manager.open_pdf(test_pdf_file_path)
-        self.render_pdf_page(self.current_page)
-        self.markup_manager.load_data(test_markup_file_path)
-        self.render_pages_in_list_box()
+        if DEBUG:
+            test_pdf_file_path = "/Users/nicholascastello/Documents/Theatre/Librettos/Holy Rollers Libretto (raw).pdf"
+            test_markup_file_path = "/Users/nicholascastello/Documents/Theatre/Librettos/sample_session_data.json"
+            self.window["-FILENAME-"].update(test_pdf_file_path)
+            self.pdf_manager.open_pdf(test_pdf_file_path)
+            self.render_pdf_page(self.current_page)
+            self.markup_manager.load_data(test_markup_file_path)
+            self.render_pages_in_list_box()
 
         while True:
             event, values = self.window.read()
@@ -403,6 +407,7 @@ class Gui:
         # TODO: DO we need to validate that there is an actual file_path here? What about cancellations
         self.pdf_manager.convert_pdf_with_overlays(
             self.markup_manager,
+            self.view,
             file_path,
             image_size=(image_config["x"], image_config["y"]),
         )
@@ -412,6 +417,7 @@ class Gui:
         # Check if there is a selected cue and if so, delete it
         if self.selected_cue:
             self.markup_manager.delete_cue(self.current_page, self.selected_cue)
+            self.deselect_cue()
             self.render_pdf_page(self.current_page)
             self.render_pages_in_list_box()
             return
@@ -422,22 +428,29 @@ class Gui:
 
         if cue:
             self.selected_cue = cue
+            self.show_delete_button()
         else:
-            self.selected_cue = None
+            self.deselect_cue()
+
+    def deselect_cue(self):
+        self.selected_cue = None
+        self.hide_delete_button()
 
     def handle_update_cursor_mode(self, cursor_mode):
         self.cursor_mode = cursor_mode
         self.update_button_styles()
 
     def handle_next_page_click(self):
-        self.render_pdf_page(self.current_page + 1)
+        if self.render_pdf_page(self.current_page + 1):
+            self.deselect_cue()
 
     def handle_previous_page_click(self):
-        self.render_pdf_page(self.current_page - 1)
+        if self.render_pdf_page(self.current_page - 1):
+            self.deselect_cue()
 
     def render_pdf_page(self, page_number):
         if page_number < 0 or page_number >= self.pdf_manager.get_num_pages():
-            return
+            return False
 
         page_image = self.pdf_manager.get_pdf_page_with_cues(
             self.markup_manager,
@@ -455,6 +468,9 @@ class Gui:
             self.window["-FILE_NUM-"].update(
                 f"Page {self.current_page} of {self.pdf_manager.get_num_pages()-1}"
             )
+            return True
+
+        return False
 
     def render_pages_in_list_box(self):
         listbox_data = []
@@ -651,3 +667,20 @@ class Gui:
                 self.window[key].update(button_color=self.button_selected_color)
             else:
                 self.window[key].update(button_color=self.button_normal_color)
+
+    def show_delete_button(self):
+        self.window["-DELETE-"].update(disabled=False, button_color=("white", "red"))
+        if self.selected_cue:
+            self.window["-DELETE-"].update(
+                f"Delete cue {self.current_page}.{self.selected_cue.number}"
+            )
+
+    def hide_delete_button(self):
+        self.window["-DELETE-"].update(
+            disabled=True,
+            button_color=(
+                color_config["disabled_text_color"],
+                color_config["disabled_background_color"],
+            ),
+        )
+        self.window["-DELETE-"].update(f"Delete")

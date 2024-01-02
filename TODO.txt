@@ -7,6 +7,10 @@ NEED BEFORE BETA RELEASE
     * dont show cue add cue type frame until there is a pdf
     * dont show view frame until there are cues present / a markup loaded
 * Should I prevent adding a cue on top of a previous one? Probably...within what threshold of another should I prevent it
+* Wrap annotation text so it doesnt run on 
+* Deselect cue once it is deleted
+* validate file chooser type
+* Address TODOS in code
 
 VALIDATION
 * validate edit annotation coordinates are within page bounds

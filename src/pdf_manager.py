@@ -34,13 +34,13 @@ class PdfManager:
         return len(self.pdf.pages)
 
     def convert_pdf_with_overlays(
-        self, markup_manager, output_pdf_path, image_size=(1350, 1050)
+        self, markup_manager, view, output_pdf_path, image_size=(1350, 1050)
     ):
         temp_pdf_paths = []
 
         for i in range(len(self.pdf.pages)):
             page_image = self.get_pdf_page_with_cues(
-                markup_manager, i, image_size=image_size
+                markup_manager, view, i, image_size=image_size
             )
             page_pdf_data = self.convert_image_to_data(page_image, FileType.PDF.value)
             temp_pdf_path = f"{output_pdf_path.split('.')[0]}_temp_page_{i}.pdf"
